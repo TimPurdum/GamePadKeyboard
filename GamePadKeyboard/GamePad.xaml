@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:gamePadKeyboard="clr-namespace:GamePadKeyboard;assembly=GamePadKeyboard"
+             x:Class="GamePadKeyboard.GamePad" BackgroundColor="LightGray" HeightRequest="300"
+             HorizontalOptions="Fill" VerticalOptions="Fill">
+    <ContentView.Content>
+        <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ImageButton x:Name="LeftButton" HorizontalOptions="Start" BackgroundColor="Gray" Margin="0, 30, 0, 30"
+                         BorderColor="Black" BorderWidth="1" VerticalOptions="StartAndExpand"
+                         Clicked="OnButtonClicked" HeightRequest="60" WidthRequest="60"
+                         Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Left_Arrow_Icon.png}" />
+            <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
+                <ImageButton x:Name="UpButton" HorizontalOptions="Start" BackgroundColor="Gray"
+                             BorderColor="Black" BorderWidth="1"
+                             Clicked="OnButtonClicked" HeightRequest="60" WidthRequest="60"
+                             Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Up_Arrow_Icon.png}" />
+                <ImageButton x:Name="DownButton" HorizontalOptions="Start" BackgroundColor="Gray"
+                             BorderColor="Black" BorderWidth="1"
+                             Clicked="OnButtonClicked" HeightRequest="60" WidthRequest="60"
+                             Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Down_Arrow_Icon.png}" />
+            </StackLayout>
+            <ImageButton x:Name="RightButton" HorizontalOptions="Start" BackgroundColor="Gray"
+                         BorderColor="Black" BorderWidth="1" VerticalOptions="StartAndExpand" Margin="0, 30, 0, 30"
+                         Clicked="OnButtonClicked" HeightRequest="60" WidthRequest="60"
+                         Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Right_Arrow_Icon.png}" />
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>
