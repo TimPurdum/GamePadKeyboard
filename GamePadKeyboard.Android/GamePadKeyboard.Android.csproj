@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="GamePadInputMethodService.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="NotificationReceiver.cs" />
     <Compile Include="Renderers\GamePadRenderer.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
