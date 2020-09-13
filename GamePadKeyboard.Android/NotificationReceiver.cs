@@ -17,8 +17,8 @@ namespace GamePadKeyboard.Droid
     public class NotificationReceiver: BroadcastReceiver
     {
         private readonly GamePadInputMethodService _imeService;
-        public static string ActionShow = "com.cedarrivertech.gamepadkeyboard.SHOW";
-        public static string ActionSettings = "com.cedarrivertech.gamepadkeyboard.SETTINGS";
+        public const string ActionShow = "com.cedarrivertech.gamepadkeyboard.SHOW";
+        public const string ActionSettings = "com.cedarrivertech.gamepadkeyboard.SETTINGS";
 
         public NotificationReceiver(GamePadInputMethodService imeService)
         {

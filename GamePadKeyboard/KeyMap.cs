@@ -8,10 +8,10 @@ namespace GamePadKeyboard
     {
         public static KeyMap Map => new KeyMap
         {
-            {Key.Up, "w"},
-            {Key.Down, "s"},
-            {Key.Left, "a"},
-            {Key.Right, "d"}
+            {Key.Up, "DpadUp"},
+            {Key.Down, "DpadDown"},
+            {Key.Left, "DpadLeft"},
+            {Key.Right, "DpadRight"}
         };
     }
 
@@ -22,6 +22,7 @@ namespace GamePadKeyboard
 
     public enum Key
     {
+        None,
         Up,
         Down,
         Left,
