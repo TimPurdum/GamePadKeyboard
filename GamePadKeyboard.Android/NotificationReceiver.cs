@@ -1,25 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.InputMethodServices;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Content;
 using Android.Views.InputMethods;
-using Android.Widget;
 
 namespace GamePadKeyboard.Droid
 {
-    public class NotificationReceiver: BroadcastReceiver
+    public class NotificationReceiver : BroadcastReceiver
     {
-        private readonly GamePadInputMethodService _imeService;
-        public const string ActionShow = "com.cedarrivertech.gamepadkeyboard.SHOW";
-        public const string ActionSettings = "com.cedarrivertech.gamepadkeyboard.SETTINGS";
-
         public NotificationReceiver(GamePadInputMethodService imeService)
         {
             _imeService = imeService;
@@ -29,10 +14,11 @@ namespace GamePadKeyboard.Droid
         {
             var action = intent.Action;
 
-            if (action == ActionShow)
-            {
-                _imeService.RequestShowSelf(ShowFlags.Forced);
-            }
+            if (action == ActionShow) _imeService.RequestShowSelf(ShowFlags.Forced);
         }
+
+        public const string ActionShow = "com.cedarrivertech.gamepadkeyboard.SHOW";
+        public const string ActionSettings = "com.cedarrivertech.gamepadkeyboard.SETTINGS";
+        private readonly GamePadInputMethodService _imeService;
     }
 }

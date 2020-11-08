@@ -1,5 +1,4 @@
-﻿using System;
-using Android;
+﻿using Android;
 using Android.App;
 using Android.Content;
 using Android.InputMethodServices;
@@ -7,12 +6,11 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Views;
-using Android.Views.InputMethods;
 using Android.Widget;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-using View = Android.Views.View;
 using Keycode = Android.Views.Keycode;
+using View = Android.Views.View;
 
 namespace GamePadKeyboard.Droid
 {
@@ -22,15 +20,19 @@ namespace GamePadKeyboard.Droid
     [IntentFilter(new[] {"android.view.InputMethod"})]
     public class GamePadInputMethodService : InputMethodService, View.IOnClickListener
     {
-        public override void OnCreate()
+        public GamePadInputMethodService()
         {
-            base.OnCreate();
-            SetNotification(true);
+            _keyMap = new AndroidKeyMap();
         }
 
         public void OnClick(View v)
         {
-            
+        }
+
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            SetNotification(true);
         }
 
 
@@ -43,14 +45,13 @@ namespace GamePadKeyboard.Droid
 
             if (IsDeviceSurfaceDuo(ApplicationContext))
             {
-                var manager = ApplicationContext.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
+                var manager = ApplicationContext.GetSystemService(WindowService).JavaCast<IWindowManager>();
                 var surfaceOrientation = manager.DefaultDisplay.Orientation;
-                if (surfaceOrientation == (int)SurfaceOrientation.Rotation90 ||
-                    surfaceOrientation == (int)SurfaceOrientation.Rotation270)
-                {
-                    screeHeightPx = Resources.DisplayMetrics.HeightPixels;
-                }
+                if (surfaceOrientation == (int) SurfaceOrientation.Rotation90 ||
+                    surfaceOrientation == (int) SurfaceOrientation.Rotation270)
+                    screeHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
             }
+
             var androidView = ConvertFormsToNative(gamepadView,
                 new Rectangle(0, 0, screenWidthPx, screeHeightPx));
 
@@ -61,26 +62,28 @@ namespace GamePadKeyboard.Droid
 
 
         public bool IsDeviceSurfaceDuo(Context context, string feature = "com.microsoft.device.display.displaymask")
-            => context?.PackageManager?.HasSystemFeature(feature) ?? false;
+        {
+            return context?.PackageManager?.HasSystemFeature(feature) ?? false;
+        }
 
 
         private void OnGamePadKeyPressed(object sender, KeyPressEventArgs e)
         {
             var ic = CurrentInputConnection;
-            var clickedKeyText = e.KeyValue;
-            Enum.TryParse<Keycode>(clickedKeyText, out var keyCode);
-            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Down, keyCode));
-            ic.CommitText(clickedKeyText, 1);
+            var formsKey = e.KeyValue;
+            var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
+            if (keyCode == null) return;
+            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Down, keyCode.Value));
         }
 
 
         private void OnGamePadKeyReleased(object sender, KeyPressEventArgs e)
         {
             var ic = CurrentInputConnection;
-            var clickedKeyText = e.KeyValue;
-            Enum.TryParse<Keycode>(clickedKeyText, out var keyCode);
-            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Up, keyCode));
-            ic.CommitText(clickedKeyText, 1);
+            var formsKey = e.KeyValue;
+            var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
+            if (keyCode == null) return;
+            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Up, keyCode.Value));
         }
 
 
@@ -102,12 +105,10 @@ namespace GamePadKeyboard.Droid
         private void CreateNotificationChannel()
         {
             if (Build.VERSION.SdkInt < BuildVersionCodes.O)
-            {
                 // Notification channels are new in API 26 (and not a part of the
                 // support library). There is no need to create a notification
                 // channel on older versions of Android.
                 return;
-            }
 
             var channelName = "GamePadKeyboard";
             var channelDescription = "THis is the notification";
@@ -116,7 +117,7 @@ namespace GamePadKeyboard.Droid
                 Description = channelDescription
             };
 
-            var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+            var notificationManager = (NotificationManager) GetSystemService(NotificationService);
             notificationManager.CreateNotificationChannel(channel);
         }
 
@@ -147,7 +148,8 @@ namespace GamePadKeyboard.Droid
 
                 var mBuilder = new NotificationCompat.Builder(this, NotificationChannelId)
                     .SetSmallIcon(Resource.Drawable.notify_panel_notification_icon_bg)
-                    .SetAutoCancel(false) //Make this notification automatically dismissed when the user touches it -> false.
+                    .SetAutoCancel(
+                        false) //Make this notification automatically dismissed when the user touches it -> false.
                     .SetTicker(text)
                     .SetContentTitle(title)
                     .SetContentText(body)
@@ -172,6 +174,7 @@ namespace GamePadKeyboard.Droid
 
         private const string NotificationChannelId = "GamePadKeyboard";
         private const int NotificationOngoingId = 1001;
+        private readonly AndroidKeyMap _keyMap;
         private NotificationReceiver _notificationReceiver;
     }
 }

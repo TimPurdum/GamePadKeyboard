@@ -8,17 +8,13 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
 [assembly: ExportRenderer(typeof(GamePad), typeof(GamePadRenderer))]
+
 namespace GamePadKeyboard.Droid
 {
     public class GamePadRenderer : ViewRenderer, TextureView.ISurfaceTextureListener
     {
         public GamePadRenderer(Context context) : base(context)
         {
-        }
-
-        protected override void OnLayout(bool changed, int l, int t, int r, int b)
-        {
-            base.OnLayout(changed, l, t, r, b);
         }
 
         public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
@@ -39,6 +35,11 @@ namespace GamePadKeyboard.Droid
         public void OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
             throw new NotImplementedException();
+        }
+
+        protected override void OnLayout(bool changed, int l, int t, int r, int b)
+        {
+            base.OnLayout(changed, l, t, r, b);
         }
     }
 }

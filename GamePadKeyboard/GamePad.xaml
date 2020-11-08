@@ -3,56 +3,147 @@
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:gamePadKeyboard="clr-namespace:GamePadKeyboard;assembly=GamePadKeyboard"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:WidthRequest="768" d:HeightRequest="400"
              x:Class="GamePadKeyboard.GamePad" BackgroundColor="Black" HorizontalOptions="Start"
              VerticalOptions="Start">
     <ContentView.Content>
-        <Frame CornerRadius="150"  Margin="0, 0, 0, 50" BackgroundColor="LightSlateGray">
-            <RelativeLayout VerticalOptions="Center" HorizontalOptions="Start">
-                <Frame CornerRadius="100" HeightRequest="180" BorderColor="Firebrick" Padding="0"
-                       BackgroundColor="Gray" Margin="20" VerticalOptions="Center">
+        <Frame d:WidthRequest="600" d:HeightRequest="400"
+               CornerRadius="150" Margin="0, 0, 0, 50" BackgroundColor="#242424">
+            <RelativeLayout x:Name="MainRelativeLayout" VerticalOptions="Center" HorizontalOptions="Start">
+                <Grid x:Name="DPadGrid">
+                    <Frame CornerRadius="100" HeightRequest="220" WidthRequest="220" Padding="0" BorderColor="Black"
+                           BackgroundColor="#515151" Margin="0" VerticalOptions="Center"
+                           RelativeLayout.YConstraint="{Binding ButtonsY}">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
+                            <Button x:Name="LeftButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
+                                         VerticalOptions="Start" HeightRequest="220"
+                                         WidthRequest="70" />
+                            <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
+                                <Button x:Name="UpButton" HorizontalOptions="Start" HeightRequest="90"
+                                             WidthRequest="70" />
+                                <Button x:Name="DownButton" HorizontalOptions="Start" HeightRequest="170"
+                                             WidthRequest="70" />
+                            </StackLayout>
+                            <Button x:Name="RightButton" HorizontalOptions="Start"
+                                         VerticalOptions="StartAndExpand"
+                                         Margin="0, 30, 0, 30" HeightRequest="220"
+                                         WidthRequest="70" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"
+                           BackgroundColor="#242424" Margin="10" VerticalOptions="Center"
+                           RelativeLayout.YConstraint="{Binding ButtonsY}" />
+                    <Frame CornerRadius="100" HeightRequest="180" WidthRequest="180" Padding="0" BorderColor="Black"
+                           BackgroundColor="#515151" Margin="20" VerticalOptions="Center"
+                           RelativeLayout.YConstraint="{Binding ButtonsY}" />
+                    <Button HorizontalOptions="Start" BackgroundColor="Black" CornerRadius="60"
+                            BorderColor="Yellow"
+                            BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased" x:Name="ThumbLeft"
+                            WidthRequest="120" HeightRequest="120" VerticalOptions="Start" IsVisible="False" />
+                    <Frame x:Name="DPadFrame" CornerRadius="100" HeightRequest="220" BorderColor="Black"
+                           Padding="0"
+                           BackgroundColor="Transparent" Margin="0" VerticalOptions="Center"
+                           RelativeLayout.YConstraint="{Binding ButtonsY}" />
+                </Grid>
+                <Frame HeightRequest="220" WidthRequest="222" Padding="0"
+                       BackgroundColor="Transparent" Margin="40, 40" VerticalOptions="Center"
+                       RelativeLayout.YConstraint="{Binding LookY}">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
-                        <ImageButton x:Name="LeftButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
-                                     VerticalOptions="Start"
-                                     Pressed="OnButtonPressed" Released="OnButtonReleased" HeightRequest="180"
-                                     WidthRequest="60"
+                        <ImageButton x:Name="DLeftButton" HorizontalOptions="Start" Margin="0, 60, 0, 70"
+                                     VerticalOptions="Start" HeightRequest="60"
+                                     WidthRequest="60" BorderColor="Black" BorderWidth="1"
+                                     BackgroundColor="Black"
+                                     Pressed="OnButtonPressed" Released="OnButtonReleased"
                                      Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Left_Arrow_Icon.png}" />
                         <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
-                            <ImageButton x:Name="UpButton" HorizontalOptions="Start"
-                                         Pressed="OnButtonPressed" Released="OnButtonReleased" HeightRequest="60"
-                                         WidthRequest="60"
+                            <ImageButton x:Name="DUpButton" HorizontalOptions="Start" HeightRequest="60"
+                                         WidthRequest="60" BorderColor="Black" BorderWidth="1"
+                                         BackgroundColor="Black"
+                                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                                          Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Up_Arrow_Icon.png}" />
-                            <ImageButton x:Name="DownButton" HorizontalOptions="Start"
-                                         Pressed="OnButtonPressed" Released="OnButtonReleased" HeightRequest="160"
-                                         WidthRequest="60"
+                            <ImageButton x:Name="DDownButton" HorizontalOptions="Start" HeightRequest="60"
+                                         Margin="0,55, 0, 0"
+                                         WidthRequest="60" BorderColor="Black" BorderWidth="1"
+                                         BackgroundColor="Black"
+                                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                                          Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Down_Arrow_Icon.png}" />
                         </StackLayout>
-                        <ImageButton x:Name="RightButton" HorizontalOptions="Start" VerticalOptions="StartAndExpand"
-                                     Margin="0, 30, 0, 30"
-                                     Pressed="OnButtonPressed" Released="OnButtonReleased" HeightRequest="180"
-                                     WidthRequest="60"
+                        <ImageButton x:Name="DRightButton" HorizontalOptions="Start"
+                                     VerticalOptions="StartAndExpand"
+                                     Margin="0, 60, 0, 70" HeightRequest="60"
+                                     WidthRequest="60" BorderWidth="1" BorderColor="Black"
+                                     BackgroundColor="Black"
+                                     Pressed="OnButtonPressed" Released="OnButtonReleased"
                                      Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.Right_Arrow_Icon.png}" />
                     </StackLayout>
                 </Frame>
-                <Frame x:Name="ButtonsFrame" CornerRadius="100" BorderColor="Firebrick" Padding="4"
-                       BackgroundColor="Gray" RelativeLayout.XConstraint="{Binding ButtonsX}">
+
+                <Grid RelativeLayout.YConstraint="{Binding LookY}" RelativeLayout.XConstraint="{Binding LookX}">
+                    <Frame CornerRadius="100" HeightRequest="220" BorderColor="Black" Padding="0"
+                           BackgroundColor="#515151" Margin="20" VerticalOptions="Center">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
+                            <Button x:Name="LeftLookButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
+                                         VerticalOptions="Start" HeightRequest="220"
+                                         WidthRequest="70" />
+                            <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
+                                <Button x:Name="UpLookButton" HorizontalOptions="Start" HeightRequest="90"
+                                             WidthRequest="70" />
+                                <Button x:Name="DownLookButton" HorizontalOptions="Start" HeightRequest="170"
+                                             WidthRequest="70" />
+                            </StackLayout>
+                            <Button x:Name="RightLookButton" HorizontalOptions="Start"
+                                         VerticalOptions="StartAndExpand"
+                                         Margin="0, 30, 0, 30" HeightRequest="220"
+                                         WidthRequest="70" />
+                        </StackLayout>
+                    </Frame>
+                    <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"
+                           BackgroundColor="#242424" Margin="30" VerticalOptions="Center" />
+                    <Frame CornerRadius="100" HeightRequest="180" WidthRequest="180" Padding="0" BorderColor="Black"
+                           BackgroundColor="#515151" Margin="40" VerticalOptions="Center" />
+                    <Frame x:Name="LookPadFrame" CornerRadius="100" HeightRequest="220" BorderColor="Black"
+                           Padding="0"
+                           BackgroundColor="Transparent" Margin="20" VerticalOptions="Center" />
+                    <Button HorizontalOptions="Start" BackgroundColor="Black" CornerRadius="60"
+                            BorderColor="Yellow"
+                            BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased" x:Name="ThumbRight"
+                            WidthRequest="120" HeightRequest="120" VerticalOptions="Start" IsVisible="False" />
+                </Grid>
+                <Frame x:Name="ButtonsFrame" CornerRadius="100" BorderColor="Black" Padding="4"
+                       BackgroundColor="#515151"
+                       RelativeLayout.XConstraint="{Binding ButtonsX}"
+                       RelativeLayout.YConstraint="{Binding ButtonsY}">
                     <StackLayout VerticalOptions="Center" Orientation="Horizontal">
-                        <Button Text="X" HorizontalOptions="Start" BackgroundColor="Teal" CornerRadius="40" BorderColor="Black"
-                                BorderWidth="2"
-                                Padding="32, 20" FontSize="26" FontAttributes="Bold" WidthRequest="80" HeightRequest="80" 
+                        <Button Text="X" HorizontalOptions="Start" BackgroundColor="Teal" CornerRadius="40"
+                                BorderColor="Black"
+                                BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased" x:Name="XButton"
+                                Padding="25, 14" FontSize="24" FontAttributes="Bold" WidthRequest="70"
+                                HeightRequest="70"
                                 VerticalOptions="Center" />
                         <StackLayout Orientation="Vertical" Margin="-15, 0">
-                            <Button Text="Y" HorizontalOptions="Start" BackgroundColor="Yellow" CornerRadius="40" BorderColor="Black"
-                                    BorderWidth="2"
-                                    Padding="32, 20" FontSize="26" FontAttributes="Bold" WidthRequest="80" HeightRequest="80" 
+                            <Button Text="Y" HorizontalOptions="Start" BackgroundColor="Yellow" CornerRadius="40"
+                                    BorderColor="Black"
+                                    BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased"
+                                    x:Name="YButton"
+                                    Padding="25, 14" FontSize="24" FontAttributes="Bold" WidthRequest="70"
+                                    HeightRequest="70"
                                     VerticalOptions="Center" Margin="0, 0, 0, 50" />
-                            <Button Text="A" HorizontalOptions="Start" BackgroundColor="LightGreen" CornerRadius="40" BorderColor="Black"
-                                    BorderWidth="2"
-                                    Padding="32, 20" FontSize="26" FontAttributes="Bold" WidthRequest="80" HeightRequest="80" 
+                            <Button Text="A" HorizontalOptions="Start" BackgroundColor="LightGreen" CornerRadius="40"
+                                    BorderColor="Black"
+                                    BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased"
+                                    x:Name="AButton"
+                                    Padding="25, 14" FontSize="24" FontAttributes="Bold" WidthRequest="70"
+                                    HeightRequest="70"
                                     VerticalOptions="Center" />
                         </StackLayout>
-                        <Button Text="B" HorizontalOptions="Start" BackgroundColor="Magenta" CornerRadius="40" BorderColor="Black"
-                                BorderWidth="2"
-                                Padding="32, 20" FontSize="26" FontAttributes="Bold" WidthRequest="80" HeightRequest="80" 
+                        <Button Text="B" HorizontalOptions="Start" BackgroundColor="Magenta" CornerRadius="40"
+                                BorderColor="Black"
+                                BorderWidth="2" Pressed="OnButtonPressed" Released="OnButtonReleased" x:Name="BButton"
+                                Padding="25, 14" FontSize="24" FontAttributes="Bold" WidthRequest="70"
+                                HeightRequest="70"
                                 VerticalOptions="Center" />
                     </StackLayout>
                 </Frame>

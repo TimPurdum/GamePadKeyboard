@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GamePadKeyboard.DPadControl">
+    <ContentView.Content>
+        <Grid x:Name="DPadGrid">
+            <Frame CornerRadius="100" HeightRequest="220" WidthRequest="220" Padding="0" BorderColor="Black"
+                   BackgroundColor="#515151" Margin="0" VerticalOptions="Center"
+                   RelativeLayout.YConstraint="{Binding ButtonsY}">
+                <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
+                    <Button x:Name="LeftButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
+                                 VerticalOptions="Start" HeightRequest="220"
+                                 WidthRequest="70" />
+                    <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
+                        <Button x:Name="UpButton" HorizontalOptions="Start" HeightRequest="90"
+                                     WidthRequest="70" />
+                        <Button x:Name="DownButton" HorizontalOptions="Start" HeightRequest="170"
+                                     WidthRequest="70" />
+                    </StackLayout>
+                    <Button x:Name="RightButton" HorizontalOptions="Start"
+                                 VerticalOptions="StartAndExpand"
+                                 Margin="0, 30, 0, 30" HeightRequest="220"
+                                 WidthRequest="70" />
+                </StackLayout>
+            </Frame>
+            <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"
+                   BackgroundColor="#242424" Margin="10" VerticalOptions="Center"
+                   RelativeLayout.YConstraint="{Binding ButtonsY}" />
+            <Frame CornerRadius="100" HeightRequest="180" WidthRequest="180" Padding="0" BorderColor="Black"
+                   BackgroundColor="#515151" Margin="20" VerticalOptions="Center"
+                   RelativeLayout.YConstraint="{Binding ButtonsY}" />
+            <Button HorizontalOptions="Start" BackgroundColor="Black" CornerRadius="60"
+                    BorderColor="Yellow"
+                    BorderWidth="2" x:Name="ThumbLeft"
+                    WidthRequest="120" HeightRequest="120" VerticalOptions="Start" IsVisible="False" />
+            <Frame x:Name="DPadFrame" CornerRadius="100" HeightRequest="220" BorderColor="Black"
+                   Padding="0"
+                   BackgroundColor="Transparent" Margin="0" VerticalOptions="Center"
+                   RelativeLayout.YConstraint="{Binding ButtonsY}" />
+        </Grid>
+    </ContentView.Content>
+</ContentView>

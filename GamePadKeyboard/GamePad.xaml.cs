@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using GamePadKeyboard.TouchApi;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -20,8 +17,42 @@ namespace GamePadKeyboard
             SizeChanged += (sender, args) =>
             {
                 ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + 40));
+                ButtonsY = Constraint.Constant(0);
+                DPadY = Constraint.Constant((Height - DPadFrame.Height) / 2);
+                LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
+                LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
             };
+
+            _buttonKeys = new Dictionary<View, FormsKey>
+            {
+                {LeftButton, FormsKey.Left},
+                {RightButton, FormsKey.Right},
+                {UpButton, FormsKey.Up},
+                {DownButton, FormsKey.Down},
+                {AButton, FormsKey.A},
+                {BButton, FormsKey.B},
+                {XButton, FormsKey.X},
+                {YButton, FormsKey.Y},
+                {LeftLookButton, FormsKey.SoftLeft},
+                {RightLookButton, FormsKey.SoftRight},
+                {UpLookButton, FormsKey.PageUp},
+                {DownLookButton, FormsKey.PageDown},
+                {DLeftButton, FormsKey.ShiftLeft},
+                {DRightButton, FormsKey.ShiftRight},
+                {DUpButton, FormsKey.Forward},
+                {DDownButton, FormsKey.Back},
+            };
+
+            var dPadTouchEffect = new TouchEffect();
+            dPadTouchEffect.TouchAction += OnTouchEffectAction;
+            var lookPadTouchEffect = new TouchEffect();
+            lookPadTouchEffect.TouchAction += OnTouchEffectAction;
+            DPadFrame.Effects.Add(dPadTouchEffect);
+            LookPadFrame.Effects.Add(lookPadTouchEffect);
         }
+
+        public event EventHandler<KeyPressEventArgs> KeyPressed;
+        public event EventHandler<KeyPressEventArgs> KeyReleased;
 
         public Constraint ButtonsX
         {
@@ -36,58 +67,261 @@ namespace GamePadKeyboard
             }
         }
 
-        public event EventHandler<KeyPressEventArgs> KeyPressed;
-        public event EventHandler<KeyPressEventArgs> KeyReleased;
+
+        public Constraint ButtonsY
+        {
+            get => _buttonsY;
+            set
+            {
+                if (_buttonsY != value)
+                {
+                    _buttonsY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public Constraint DPadY
+        {
+            get => _dPadY;
+            set
+            {
+                if (_dPadY != value)
+                {
+                    _dPadY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        public Constraint LookX
+        {
+            get => _lookX;
+            set
+            {
+                if (_lookX != value)
+                {
+                    _lookX = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        public Constraint LookY
+        {
+            get => _lookY;
+            set
+            {
+                if (_lookY != value)
+                {
+                    _lookY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
+        {
+            if (!(sender is View view)) return;
+
+            switch (args.Type)
+            {
+                case TouchActionType.Pressed:
+                    // Don't allow a second touch on an already touched BoxView
+                    if (!_dragDictionary.ContainsKey(view))
+                    {
+                        _dragDictionary.Add(view, new DragInfo(args.Id, args.Location));
+
+                        // Set Capture property to true
+                        var touchEffect = (TouchEffect) view.Effects.FirstOrDefault(e => e is TouchEffect);
+                        touchEffect.Capture = true;
+                        if (sender == DPadFrame)
+                            SetDPadTouch(args.Location);
+                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
+                    }
+
+                    break;
+
+                case TouchActionType.Moved:
+                    if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
+                    {
+                        if (sender == DPadFrame)
+                            SetDPadTouch(args.Location);
+                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
+                    }
+
+                    break;
+
+                case TouchActionType.Released:
+                    if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
+                        _dragDictionary.Remove(view);
+                    if (sender == DPadFrame)
+                        ReleaseDPadTouch();
+                    else if (sender == LookPadFrame) ReleaseLookPadTouch();
+                    break;
+            }
+        }
+
+
+        private void SetDPadTouch(Point point)
+        {
+            ThumbLeft.IsVisible = true;
+            ThumbLeft.TranslationX = point.X - 60;
+            ThumbLeft.TranslationY = point.Y - 60;
+            
+            var width = DPadFrame.Width;
+            var height = DPadFrame.Height;
+            if (point.X < width / 3)
+            {
+                OnButtonPressed(LeftButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
+            }
+            else if (point.X > width / 3 * 2)
+            {
+                OnButtonPressed(RightButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
+            }
+            else
+            {
+                if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
+
+                if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
+            }
+
+            if (point.Y < height / 3)
+            {
+                OnButtonPressed(UpButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+            }
+            else if (point.Y > height / 3 * 2)
+            {
+                OnButtonPressed(DownButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
+            }
+            else
+            {
+                if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+            }
+        }
+
+
+        private void ReleaseDPadTouch()
+        {
+            ThumbLeft.IsVisible = false;
+            if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+        }
+
+
+        private void SetLookPadTouch(Point point)
+        {
+            ThumbRight.IsVisible = true;
+            ThumbRight.TranslationX = point.X - 60;
+            ThumbRight.TranslationY = point.Y - 60;
+            var width = LookPadFrame.Width;
+            var height = LookPadFrame.Height;
+            if (point.X < width / 3)
+            {
+                OnButtonPressed(LeftLookButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
+            }
+            else if (point.X > width / 3 * 2)
+            {
+                OnButtonPressed(RightLookButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
+            }
+            else
+            {
+                if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
+
+                if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
+            }
+
+            if (point.Y < height / 3)
+            {
+                OnButtonPressed(UpLookButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+            }
+            else if (point.Y > height / 3 * 2)
+            {
+                OnButtonPressed(DownLookButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
+            }
+            else
+            {
+                if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
+                if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+            }
+        }
+
+
+        private void ReleaseLookPadTouch()
+        {
+            ThumbRight.IsVisible = false;
+            if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
+            if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+        }
+
 
         private void OnButtonPressed(object sender, EventArgs e)
         {
+            if (_buttonsDown.Contains(sender)) return;
+
             var key = GetKeyFromSender(sender);
-            
-            var args = new KeyPressEventArgs(CurrentKeyMap.Map[key]);
+
+            if (key == null) return;
+            var args = new KeyPressEventArgs(key.Value);
+            _buttonsDown.Add(sender as View);
             KeyPressed?.Invoke(this, args);
         }
 
         private void OnButtonReleased(object sender, EventArgs e)
         {
+            if (!_buttonsDown.Contains(sender)) return;
+
             var key = GetKeyFromSender(sender);
-            
-            var args = new KeyPressEventArgs(CurrentKeyMap.Map[key]);
+
+            if (key == null) return;
+            var args = new KeyPressEventArgs(key.Value);
+            _buttonsDown.Remove(sender as View);
             KeyReleased?.Invoke(this, args);
         }
 
-        private Key GetKeyFromSender(object sender)
+        private FormsKey? GetKeyFromSender(object sender)
         {
-            if (sender == UpButton)
-            {
-                return Key.Up;
-            }
-            if (sender == DownButton)
-            {
-                return Key.Down;
-            }
+            if (sender is View v && _buttonKeys.ContainsKey(v)) return UserKeyMap.GetMappedKey(_buttonKeys[v]);
 
-            if (sender == LeftButton)
-            {
-                return Key.Left;
-            }
-            if (sender == RightButton)
-            {
-                return Key.Right;
-            }
-
-            return Key.None;
+            return null;
         }
 
+        private readonly Dictionary<View, FormsKey> _buttonKeys;
+        private readonly List<View> _buttonsDown = new List<View>();
+        private readonly Dictionary<View, DragInfo> _dragDictionary = new Dictionary<View, DragInfo>();
         private Constraint _buttonsX;
-    }
+        private Constraint _buttonsY;
+        private Constraint _dPadY;
+        private Constraint _lookX;
+        private Constraint _lookY;
 
-    public class KeyPressEventArgs: EventArgs
-    {
-        public KeyPressEventArgs(string keyValue)
+        private class DragInfo
         {
-            KeyValue = keyValue;
-        }
+            public DragInfo(long id, Point pressPoint)
+            {
+                Id = id;
+                PressPoint = pressPoint;
+            }
 
-        public string KeyValue { get; }
+            public long Id { get; }
+
+            public Point PressPoint { get; }
+        }
     }
 }
