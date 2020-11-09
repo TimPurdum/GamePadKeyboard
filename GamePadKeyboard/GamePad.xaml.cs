@@ -21,6 +21,8 @@ namespace GamePadKeyboard
                 DPadY = Constraint.Constant((Height - DPadFrame.Height) / 2);
                 LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
                 LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
+                SettingsX = Constraint.Constant(Width / 2 - SettingsButton.Width / 2);
+                SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
             };
 
             _buttonKeys = new Dictionary<View, FormsKey>
@@ -53,6 +55,7 @@ namespace GamePadKeyboard
 
         public event EventHandler<KeyPressEventArgs> KeyPressed;
         public event EventHandler<KeyPressEventArgs> KeyReleased;
+        public event EventHandler SettingsPressed;
 
         public Constraint ButtonsX
         {
@@ -121,6 +124,33 @@ namespace GamePadKeyboard
                 }
             }
         }
+        
+        public Constraint SettingsX
+        {
+            get => _settingsX;
+            set
+            {
+                if (_settingsX != value)
+                {
+                    _settingsX = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        
+        
+        public Constraint SettingsY
+        {
+            get => _settingsY;
+            set
+            {
+                if (_settingsY != value)
+                {
+                    _settingsY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
 
         private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
@@ -139,8 +169,14 @@ namespace GamePadKeyboard
                         var touchEffect = (TouchEffect) view.Effects.FirstOrDefault(e => e is TouchEffect);
                         touchEffect.Capture = true;
                         if (sender == DPadFrame)
+                        {
                             SetDPadTouch(args.Location);
-                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
+                        }
+                        else if (sender == LookPadFrame)
+                        {
+                            _startLookPoint = args.Location;
+                            SetLookPadTouch(args.Location);
+                        }
                     }
 
                     break;
@@ -149,18 +185,32 @@ namespace GamePadKeyboard
                     if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
                     {
                         if (sender == DPadFrame)
+                        {
                             SetDPadTouch(args.Location);
-                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
+                        }
+                        else if (sender == LookPadFrame)
+                        {
+                            SetLookPadTouch(args.Location);
+                        }
                     }
 
                     break;
 
                 case TouchActionType.Released:
                     if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
+                    {
                         _dragDictionary.Remove(view);
+                    }
+
                     if (sender == DPadFrame)
+                    {
                         ReleaseDPadTouch();
-                    else if (sender == LookPadFrame) ReleaseLookPadTouch();
+                    }
+                    else if (sender == LookPadFrame)
+                    {
+                        ReleaseLookPadTouch();
+                    }
+
                     break;
             }
         }
@@ -226,12 +276,14 @@ namespace GamePadKeyboard
             ThumbRight.TranslationY = point.Y - 60;
             var width = LookPadFrame.Width;
             var height = LookPadFrame.Height;
-            if (point.X < width / 3)
+            var x = point.X - (_startLookPoint.X - (width / 2));
+            var y = point.Y - (_startLookPoint.Y - (height / 2));
+            if (x < width / 3)
             {
                 OnButtonPressed(LeftLookButton, EventArgs.Empty);
                 if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
             }
-            else if (point.X > width / 3 * 2)
+            else if (x > width / 3 * 2)
             {
                 OnButtonPressed(RightLookButton, EventArgs.Empty);
                 if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
@@ -243,12 +295,12 @@ namespace GamePadKeyboard
                 if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
             }
 
-            if (point.Y < height / 3)
+            if (y < height / 3)
             {
                 OnButtonPressed(UpLookButton, EventArgs.Empty);
                 if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
             }
-            else if (point.Y > height / 3 * 2)
+            else if (y > height / 3 * 2)
             {
                 OnButtonPressed(DownLookButton, EventArgs.Empty);
                 if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
@@ -294,6 +346,11 @@ namespace GamePadKeyboard
             _buttonsDown.Remove(sender as View);
             KeyReleased?.Invoke(this, args);
         }
+        
+        private void OnSettingsPressed(object sender, EventArgs e)
+        {
+            SettingsPressed?.Invoke(this, e);
+        }
 
         private FormsKey? GetKeyFromSender(object sender)
         {
@@ -310,6 +367,9 @@ namespace GamePadKeyboard
         private Constraint _dPadY;
         private Constraint _lookX;
         private Constraint _lookY;
+        private Point _startLookPoint;
+        private Constraint _settingsX;
+        private Constraint _settingsY;
 
         private class DragInfo
         {

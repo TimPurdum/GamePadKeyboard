@@ -23,6 +23,8 @@
     <EmbeddedResource Include="Images\Left_Arrow_Icon.png" />
     <EmbeddedResource Include="Images\Right_Arrow_Icon.png" />
     <EmbeddedResource Include="Images\Up_Arrow_Icon.png" />
+    <None Remove="Images\gear.png" />
+    <EmbeddedResource Include="Images\gear.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -147,6 +147,10 @@
                                 VerticalOptions="Center" />
                     </StackLayout>
                 </Frame>
+                <ImageButton x:Name="SettingsButton" RelativeLayout.XConstraint="{Binding SettingsX}"
+                             HeightRequest="60" WidthRequest="60" VerticalOptions="Start" HorizontalOptions="Start"
+                             Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.gear.png}"
+                             Pressed="OnSettingsPressed" />
             </RelativeLayout>
         </Frame>
     </ContentView.Content>

@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Views.InputMethods;
+using Xamarin.Forms;
 
 namespace GamePadKeyboard.Droid
 {
@@ -14,7 +15,10 @@ namespace GamePadKeyboard.Droid
         {
             var action = intent.Action;
 
-            if (action == ActionShow) _imeService.RequestShowSelf(ShowFlags.Forced);
+            if (action == ActionShow)
+            {
+                _imeService.RequestShowSelf(ShowFlags.Forced);
+            }
         }
 
         public const string ActionShow = "com.cedarrivertech.gamepadkeyboard.SHOW";

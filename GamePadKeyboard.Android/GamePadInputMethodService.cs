@@ -1,4 +1,5 @@
-﻿using Android;
+﻿using System;
+using Android;
 using Android.App;
 using Android.Content;
 using Android.InputMethodServices;
@@ -6,6 +7,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
@@ -57,7 +59,16 @@ namespace GamePadKeyboard.Droid
 
             gamepadView.KeyPressed += OnGamePadKeyPressed;
             gamepadView.KeyReleased += OnGamePadKeyReleased;
+            gamepadView.SettingsPressed += OnSettingsPressed;
             return androidView;
+        }
+
+        private void OnSettingsPressed(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(MainActivity));
+            intent.SetFlags(ActivityFlags.NewTask);
+            StartActivity(intent);
+            RequestShowSelf(ShowFlags.Forced);
         }
 
 
@@ -138,13 +149,9 @@ namespace GamePadKeyboard.Droid
 
                 var notificationIntent = new Intent(NotificationReceiver.ActionShow);
                 var contentIntent = PendingIntent.GetBroadcast(ApplicationContext, 1, notificationIntent, 0);
-
-                var configIntent = new Intent(NotificationReceiver.ActionSettings);
-                var configPendingIntent =
-                    PendingIntent.GetBroadcast(ApplicationContext, 2, configIntent, 0);
-
+                
                 var title = "Show GamePad Keyboard";
-                var body = "Select this to open the game pad. Disable in settings.";
+                var body = "Tap here to open the gamepad. Disable in settings.";
 
                 var mBuilder = new NotificationCompat.Builder(this, NotificationChannelId)
                     .SetSmallIcon(Resource.Drawable.notify_panel_notification_icon_bg)
@@ -155,8 +162,6 @@ namespace GamePadKeyboard.Droid
                     .SetContentText(body)
                     .SetContentIntent(contentIntent)
                     .SetOngoing(true)
-                    .AddAction(Resource.Drawable.notification_action_background, "Settings",
-                        configPendingIntent)
                     .SetPriority((int) NotificationPriority.Default);
 
                 var notificationManagerCompat = NotificationManagerCompat.From(this);
@@ -174,6 +179,7 @@ namespace GamePadKeyboard.Droid
 
         private const string NotificationChannelId = "GamePadKeyboard";
         private const int NotificationOngoingId = 1001;
+        private const int OpenSettingsNotificationId = 1002;
         private readonly AndroidKeyMap _keyMap;
         private NotificationReceiver _notificationReceiver;
     }
