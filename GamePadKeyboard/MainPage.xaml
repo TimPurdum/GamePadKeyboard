@@ -6,108 +6,133 @@
     <ScrollView>
         <StackLayout>
             <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
-                <Label Text="Custom GamePad Keyboard" HorizontalTextAlignment="Center" TextColor="White" FontSize="36" />
+                <Label Text="Customize Your S-Duo GamePad" HorizontalTextAlignment="Center" TextColor="White" FontSize="36" />
             </Frame>
+            <Button Text="Setup Guide" WidthRequest="100" VerticalOptions="Center" Pressed="OnSetupGuidePressed" />
+            <Label Text="Select User Layout" />
+            <StackLayout Orientation="Horizontal">
+                <Picker x:Name="LayoutPicker" WidthRequest="600" 
+                        ItemsSource="{Binding Layouts}" SelectedIndexChanged="OnLayoutSelectionChanged">
+                </Picker>
+                <Button Text="+" Pressed="OnNewLayoutPressed" />
+            </StackLayout>
+            <Frame BackgroundColor="Black" HeightRequest="3" />
+            <Label Text="Controller Design" />
+            <StackLayout Orientation="Horizontal">
+                <Picker x:Name="ControllerPicker" ItemsSource="{Binding Controllers}" WidthRequest="600"
+                        SelectedIndexChanged="OnControllerSelectionChanged"></Picker>
+            </StackLayout>
+            <Frame BackgroundColor="Black" HeightRequest="3" />
             <Label>Set Your Keys</Label>
             <StackLayout Orientation="Horizontal">
-                <Label>Left-Pad Up</Label>
+                <Label WidthRequest="100">Left-Pad Up</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding UpKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Left-Pad Down</Label>
+                <Label WidthRequest="100">Left-Pad Down</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding DownKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Left-Pad Left</Label>
+                <Label WidthRequest="100">Left-Pad Left</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding LeftKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Left-Pad Right</Label>
+                <Label WidthRequest="100">Left-Pad Right</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding RightKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Directional Up</Label>
+                <Label WidthRequest="100">Directional Up</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding DUpKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Directional Down</Label>
+                <Label WidthRequest="100">Directional Down</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding DDownKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Directional Left</Label>
+                <Label WidthRequest="100">Directional Left</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding DLeftKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Directional Right</Label>
+                <Label WidthRequest="100">Directional Right</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding DRightKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>RightPad Up</Label>
+                <Label WidthRequest="100">RightPad Up</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding LookUpKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>RightPad Down</Label>
+                <Label WidthRequest="100">RightPad Down</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding LookDownKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>RightPad Left</Label>
+                <Label WidthRequest="100">RightPad Left</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding LookLeftKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>RightPad Right</Label>
+                <Label WidthRequest="100">RightPad Right</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding LookRightKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>A Button</Label>
+                <Label WidthRequest="100">A Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding AKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>B Button</Label>
+                <Label WidthRequest="100">B Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding BKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>X Button</Label>
+                <Label WidthRequest="100">X Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding XKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>Y Button</Label>
+                <Label WidthRequest="100">Y Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding YKey}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>L1 Button</Label>
+                <Label WidthRequest="100">L1 Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding L1Key}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>L2 Button</Label>
+                <Label WidthRequest="100">L2 Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding L2Key}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>R1 Button</Label>
+                <Label WidthRequest="100">R1 Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding R1Key}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
             <StackLayout Orientation="Horizontal">
-                <Label>R2 Button</Label>
+                <Label WidthRequest="100">R2 Button</Label>
                 <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding R2Key}"
-                        HorizontalOptions="StartAndExpand" />
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label WidthRequest="100">Start Button</Label>
+                <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding StartKey}"
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label WidthRequest="100">Select Button</Label>
+                <Picker ItemsSource="{Binding AllKeys}" SelectedItem="{Binding SelectKey}"
+                        WidthRequest="400" HorizontalOptions="StartAndExpand" />
             </StackLayout>
         </StackLayout>
     </ScrollView>

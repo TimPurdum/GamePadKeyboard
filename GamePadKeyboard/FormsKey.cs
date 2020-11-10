@@ -287,6 +287,10 @@
         SystemNavigationLeft,
         SystemNavigationRight,
         AllApps,
-        Refresh
+        Refresh,
+        DpadUp,
+        DpadDown,
+        DpadLeft,
+        DpadRight
     }
 }

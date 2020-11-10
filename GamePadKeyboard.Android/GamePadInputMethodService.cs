@@ -16,7 +16,7 @@ using View = Android.Views.View;
 
 namespace GamePadKeyboard.Droid
 {
-    [Service(Name = "GamePadKeyboard.Droid.GamePadInputMethodService", Label = "GamePad Keyboard",
+    [Service(Name = "GamePadKeyboard.Droid.GamePadInputMethodService", Label = "S-Duo GamePad",
         Permission = Manifest.Permission.BindInputMethod)]
     [MetaData("android.view.im", Resource = "@xml/method")]
     [IntentFilter(new[] {"android.view.InputMethod"})]
@@ -48,9 +48,9 @@ namespace GamePadKeyboard.Droid
             if (IsDeviceSurfaceDuo(ApplicationContext))
             {
                 var manager = ApplicationContext.GetSystemService(WindowService).JavaCast<IWindowManager>();
-                var surfaceOrientation = manager.DefaultDisplay.Orientation;
-                if (surfaceOrientation == (int) SurfaceOrientation.Rotation90 ||
-                    surfaceOrientation == (int) SurfaceOrientation.Rotation270)
+                var surfaceOrientation = manager.DefaultDisplay.Rotation;
+                if (surfaceOrientation == SurfaceOrientation.Rotation90 ||
+                    surfaceOrientation == SurfaceOrientation.Rotation270)
                     screeHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
             }
 

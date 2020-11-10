@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GamePadKeyboard.TouchApi;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -14,43 +15,88 @@ namespace GamePadKeyboard
         {
             InitializeComponent();
             BindingContext = this;
-            SizeChanged += (sender, args) =>
-            {
-                ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + 40));
-                ButtonsY = Constraint.Constant(0);
-                DPadY = Constraint.Constant((Height - DPadFrame.Height) / 2);
-                LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
-                LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
-                SettingsX = Constraint.Constant(Width / 2 - SettingsButton.Width / 2);
-                SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
-            };
+            SizeChanged += SetLayout;
+            MessagingCenter.Subscribe<MainPage>(this, "Refresh", RefreshLayout);
 
             _buttonKeys = new Dictionary<View, FormsKey>
             {
-                {LeftButton, FormsKey.Left},
-                {RightButton, FormsKey.Right},
-                {UpButton, FormsKey.Up},
-                {DownButton, FormsKey.Down},
-                {AButton, FormsKey.A},
-                {BButton, FormsKey.B},
-                {XButton, FormsKey.X},
-                {YButton, FormsKey.Y},
-                {LeftLookButton, FormsKey.SoftLeft},
-                {RightLookButton, FormsKey.SoftRight},
-                {UpLookButton, FormsKey.PageUp},
-                {DownLookButton, FormsKey.PageDown},
-                {DLeftButton, FormsKey.ShiftLeft},
-                {DRightButton, FormsKey.ShiftRight},
-                {DUpButton, FormsKey.Forward},
-                {DDownButton, FormsKey.Back},
+                {LeftButton, FormsKey.A},
+                {RightButton, FormsKey.D},
+                {UpButton, FormsKey.W},
+                {DownButton, FormsKey.S},
+                {AButton, FormsKey.ButtonA},
+                {BButton, FormsKey.ButtonB},
+                {XButton, FormsKey.ButtonX},
+                {YButton, FormsKey.ButtonY},
+                {LeftLookButton, FormsKey.Left},
+                {RightLookButton, FormsKey.Right},
+                {UpLookButton, FormsKey.Up},
+                {DownLookButton, FormsKey.Down},
+                {DLeftButton, FormsKey.DpadLeft},
+                {DRightButton, FormsKey.DpadRight},
+                {DUpButton, FormsKey.DpadUp},
+                {DDownButton, FormsKey.DpadDown},
+                {L1Button, FormsKey.ButtonL1},
+                {L2Button, FormsKey.ButtonL2},
+                {R1Button, FormsKey.ButtonR1},
+                {R2Button, FormsKey.ButtonR2},
+                {StartButton, FormsKey.ButtonStart},
+                {SelectButton, FormsKey.ButtonSelect}
             };
 
             var dPadTouchEffect = new TouchEffect();
             dPadTouchEffect.TouchAction += OnTouchEffectAction;
             var lookPadTouchEffect = new TouchEffect();
             lookPadTouchEffect.TouchAction += OnTouchEffectAction;
-            DPadFrame.Effects.Add(dPadTouchEffect);
+            LeftPadFrame.Effects.Add(dPadTouchEffect);
             LookPadFrame.Effects.Add(lookPadTouchEffect);
+        }
+
+        private void RefreshLayout<TSender>(TSender obj) where TSender : class
+        {
+            SetLayout(this, EventArgs.Empty);
+        }
+
+        private void SetLayout(object sender, EventArgs e)
+        {
+            var isLandscape = DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation90 ||
+                             DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation270;
+            switch (UserSettings.GetControllerLayout())
+            {
+                case ControllerLayout.PlayStyle:
+                    LeftPadGrid.TranslationX = 40;
+                    LeftPadGrid.TranslationY = Height - (LeftPadGrid.Height + 140);
+                    LeftPadGrid.IsVisible = isLandscape;
+                    DirectionalPadFrame.TranslationX = 0;
+                    DirectionalPadFrame.TranslationY = 0;
+                    break;
+                default:
+                    LeftPadGrid.TranslationX = 0;
+                    LeftPadGrid.TranslationY = 0;
+                    DirectionalPadFrame.TranslationX = 40;
+                    DirectionalPadFrame.TranslationY = Height - (DirectionalPadFrame.Height + 100);
+                    DirectionalPadFrame.IsVisible = isLandscape;
+                    break;
+            }
+            ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + 40));
+            ButtonsY = Constraint.Constant(0);
+            LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
+            LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
+            SettingsX = Constraint.Constant(Width / 2 - 40);
+            SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
+            
+            LookPadGrid.IsVisible = isLandscape;
+            L1Button.IsVisible = isLandscape;
+            L2Button.IsVisible = isLandscape;
+            R1Button.IsVisible = isLandscape;
+            R2Button.IsVisible = isLandscape;
+            StartButton.Margin = isLandscape 
+                ? new Thickness(-80, 80, 0, 0)
+                : new Thickness(-10, 120, 0, 0);
+            SelectButton.Margin = isLandscape 
+                ? new Thickness(60, 80, 0, 0)
+                : new Thickness(-10, 166, 0, 0);
+            PadMargin = isLandscape ? new Thickness(0, 0, 0, 50) : new Thickness(0);
         }
 
         public event EventHandler<KeyPressEventArgs> KeyPressed;
@@ -79,19 +125,6 @@ namespace GamePadKeyboard
                 if (_buttonsY != value)
                 {
                     _buttonsY = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public Constraint DPadY
-        {
-            get => _dPadY;
-            set
-            {
-                if (_dPadY != value)
-                {
-                    _dPadY = value;
                     OnPropertyChanged();
                 }
             }
@@ -152,6 +185,19 @@ namespace GamePadKeyboard
             }
         }
 
+        public Thickness PadMargin
+        {
+            get => _padMargin;
+            set
+            {
+                if (_padMargin != value)
+                {
+                    _padMargin = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
         {
@@ -168,7 +214,7 @@ namespace GamePadKeyboard
                         // Set Capture property to true
                         var touchEffect = (TouchEffect) view.Effects.FirstOrDefault(e => e is TouchEffect);
                         touchEffect.Capture = true;
-                        if (sender == DPadFrame)
+                        if (sender == LeftPadFrame)
                         {
                             SetDPadTouch(args.Location);
                         }
@@ -184,7 +230,7 @@ namespace GamePadKeyboard
                 case TouchActionType.Moved:
                     if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
                     {
-                        if (sender == DPadFrame)
+                        if (sender == LeftPadFrame)
                         {
                             SetDPadTouch(args.Location);
                         }
@@ -202,7 +248,7 @@ namespace GamePadKeyboard
                         _dragDictionary.Remove(view);
                     }
 
-                    if (sender == DPadFrame)
+                    if (sender == LeftPadFrame)
                     {
                         ReleaseDPadTouch();
                     }
@@ -222,8 +268,8 @@ namespace GamePadKeyboard
             ThumbLeft.TranslationX = point.X - 60;
             ThumbLeft.TranslationY = point.Y - 60;
             
-            var width = DPadFrame.Width;
-            var height = DPadFrame.Height;
+            var width = LeftPadFrame.Width;
+            var height = LeftPadFrame.Height;
             if (point.X < width / 3)
             {
                 OnButtonPressed(LeftButton, EventArgs.Empty);
@@ -354,7 +400,7 @@ namespace GamePadKeyboard
 
         private FormsKey? GetKeyFromSender(object sender)
         {
-            if (sender is View v && _buttonKeys.ContainsKey(v)) return UserKeyMap.GetMappedKey(_buttonKeys[v]);
+            if (sender is View v && _buttonKeys.ContainsKey(v)) return UserSettings.GetMappedKey(_buttonKeys[v]);
 
             return null;
         }
@@ -364,12 +410,12 @@ namespace GamePadKeyboard
         private readonly Dictionary<View, DragInfo> _dragDictionary = new Dictionary<View, DragInfo>();
         private Constraint _buttonsX;
         private Constraint _buttonsY;
-        private Constraint _dPadY;
         private Constraint _lookX;
         private Constraint _lookY;
         private Point _startLookPoint;
         private Constraint _settingsX;
         private Constraint _settingsY;
+        private Thickness _padMargin;
 
         private class DragInfo
         {
