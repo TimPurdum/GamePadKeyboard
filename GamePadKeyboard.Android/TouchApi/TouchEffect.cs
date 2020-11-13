@@ -196,11 +196,12 @@ namespace GamePadKeyboard.Droid.TouchApi
         private static readonly Dictionary<int, TouchEffect> idToEffectDictionary =
             new Dictionary<int, TouchEffect>();
 
+        private readonly int[] twoIntArray = new int[2];
+
         private bool capture;
         private Element formsElement;
         private Func<double, double> fromPixels;
         private GamePadKeyboard.TouchApi.TouchEffect libTouchEffect;
-        private readonly int[] twoIntArray = new int[2];
         private View view;
     }
 }

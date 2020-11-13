@@ -10,18 +10,18 @@
                    RelativeLayout.YConstraint="{Binding ButtonsY}">
                 <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
                     <Button x:Name="LeftButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
-                                 VerticalOptions="Start" HeightRequest="220"
-                                 WidthRequest="70" />
+                            VerticalOptions="Start" HeightRequest="220"
+                            WidthRequest="70" />
                     <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
                         <Button x:Name="UpButton" HorizontalOptions="Start" HeightRequest="90"
-                                     WidthRequest="70" />
+                                WidthRequest="70" />
                         <Button x:Name="DownButton" HorizontalOptions="Start" HeightRequest="170"
-                                     WidthRequest="70" />
+                                WidthRequest="70" />
                     </StackLayout>
                     <Button x:Name="RightButton" HorizontalOptions="Start"
-                                 VerticalOptions="StartAndExpand"
-                                 Margin="0, 30, 0, 30" HeightRequest="220"
-                                 WidthRequest="70" />
+                            VerticalOptions="StartAndExpand"
+                            Margin="0, 30, 0, 30" HeightRequest="220"
+                            WidthRequest="70" />
                 </StackLayout>
             </Frame>
             <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"

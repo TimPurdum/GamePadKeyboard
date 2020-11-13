@@ -1,6 +1,5 @@
 ﻿using Android.Content;
 using Android.Views.InputMethods;
-using Xamarin.Forms;
 
 namespace GamePadKeyboard.Droid
 {

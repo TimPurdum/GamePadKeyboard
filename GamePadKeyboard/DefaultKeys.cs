@@ -4,11 +4,9 @@ namespace GamePadKeyboard
 {
     public static class DefaultKeys
     {
-        public static Dictionary<FormsKey, FormsKey> Map;
-
-        static DefaultKeys()
+        public static Dictionary<FormsKey, FormsKey> CreateDefaultMap()
         {
-            Map = new Dictionary<FormsKey, FormsKey>
+            return new Dictionary<FormsKey, FormsKey>
             {
                 {FormsKey.A, FormsKey.A},
                 {FormsKey.D, FormsKey.D},

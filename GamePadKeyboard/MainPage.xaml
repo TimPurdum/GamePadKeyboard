@@ -6,21 +6,27 @@
     <ScrollView>
         <StackLayout>
             <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
-                <Label Text="Customize Your S-Duo GamePad" HorizontalTextAlignment="Center" TextColor="White" FontSize="36" />
+                <Label Text="Customize Your S-Duo GamePad" HorizontalTextAlignment="Center" TextColor="White"
+                       FontSize="36" />
             </Frame>
             <Button Text="Setup Guide" WidthRequest="100" VerticalOptions="Center" Pressed="OnSetupGuidePressed" />
             <Label Text="Select User Layout" />
             <StackLayout Orientation="Horizontal">
-                <Picker x:Name="LayoutPicker" WidthRequest="600" 
-                        ItemsSource="{Binding Layouts}" SelectedIndexChanged="OnLayoutSelectionChanged">
-                </Picker>
-                <Button Text="+" Pressed="OnNewLayoutPressed" />
+                <Grid HorizontalOptions="FillAndExpand">
+                    <Picker x:Name="LayoutPicker" HorizontalOptions="FillAndExpand" VerticalOptions="Fill"
+                            ItemsSource="{Binding Layouts}" SelectedIndexChanged="OnLayoutSelectionChanged" />
+                    <Entry x:Name="LayoutEntry" IsVisible="False" HorizontalOptions="FillAndExpand"
+                           Completed="OnLayoutEntryCompleted" />
+                </Grid>
+                <Button BackgroundColor="LightGray" x:Name="EditButton" WidthRequest="50" Pressed="OnEditLayoutPressed" />
+                <Button BackgroundColor="LightGray" x:Name="AddButton" WidthRequest="50" Pressed="OnNewLayoutPressed" />
+                <Button BackgroundColor="LightPink" x:Name="DeleteButton" WidthRequest="50" Pressed="OnDeleteLayoutPressed" />
             </StackLayout>
             <Frame BackgroundColor="Black" HeightRequest="3" />
             <Label Text="Controller Design" />
             <StackLayout Orientation="Horizontal">
                 <Picker x:Name="ControllerPicker" ItemsSource="{Binding Controllers}" WidthRequest="600"
-                        SelectedIndexChanged="OnControllerSelectionChanged"></Picker>
+                        SelectedIndexChanged="OnControllerSelectionChanged" />
             </StackLayout>
             <Frame BackgroundColor="Black" HeightRequest="3" />
             <Label>Set Your Keys</Label>

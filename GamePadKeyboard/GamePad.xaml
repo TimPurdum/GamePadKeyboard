@@ -10,27 +10,26 @@
              x:Class="GamePadKeyboard.GamePad" BackgroundColor="Black" HorizontalOptions="Start"
              VerticalOptions="Start">
     <ContentView.Content>
-        <Frame d:WidthRequest="600" d:HeightRequest="400"
+        <Frame d:WidthRequest="600" d:HeightRequest="400" x:Name="MainFrame"
                CornerRadius="150" Margin="{Binding PadMargin}" BackgroundColor="#242424">
             <RelativeLayout x:Name="MainRelativeLayout" VerticalOptions="Center" HorizontalOptions="Start">
-                <Grid x:Name="LeftPadGrid">
+                <Grid x:Name="LeftPadGrid" Scale="{Binding Scale}" HorizontalOptions="Start">
                     <Frame CornerRadius="100" HeightRequest="220" WidthRequest="220" Padding="0" BorderColor="Black"
-                           BackgroundColor="#515151" Margin="0" VerticalOptions="Center"
-                           RelativeLayout.YConstraint="{Binding LeftPadY}">
+                           BackgroundColor="#515151" Margin="0" VerticalOptions="Center">
                         <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
                             <Button x:Name="LeftButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
-                                         VerticalOptions="Start" HeightRequest="220"
-                                         WidthRequest="70" />
+                                    VerticalOptions="Start" HeightRequest="220"
+                                    WidthRequest="70" />
                             <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
                                 <Button x:Name="UpButton" HorizontalOptions="Start" HeightRequest="90"
-                                             WidthRequest="70" />
+                                        WidthRequest="70" />
                                 <Button x:Name="DownButton" HorizontalOptions="Start" HeightRequest="170"
-                                             WidthRequest="70" />
+                                        WidthRequest="70" />
                             </StackLayout>
                             <Button x:Name="RightButton" HorizontalOptions="Start"
-                                         VerticalOptions="StartAndExpand"
-                                         Margin="0, 30, 0, 30" HeightRequest="220"
-                                         WidthRequest="70" />
+                                    VerticalOptions="StartAndExpand"
+                                    Margin="0, 30, 0, 30" HeightRequest="220"
+                                    WidthRequest="70" />
                         </StackLayout>
                     </Frame>
                     <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"
@@ -46,6 +45,7 @@
                            BackgroundColor="Transparent" Margin="0" VerticalOptions="Center" />
                 </Grid>
                 <Frame x:Name="DirectionalPadFrame" HeightRequest="220" WidthRequest="222" Padding="0"
+                       Scale="{Binding Scale}"
                        BackgroundColor="Transparent" VerticalOptions="Center">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
                         <ImageButton x:Name="DLeftButton" HorizontalOptions="Start" Margin="0, 60, 0, 70"
@@ -77,23 +77,25 @@
                     </StackLayout>
                 </Frame>
 
-                <Grid x:Name="LookPadGrid" RelativeLayout.YConstraint="{Binding LookY}" RelativeLayout.XConstraint="{Binding LookX}">
+                <Grid x:Name="LookPadGrid" RelativeLayout.YConstraint="{Binding LookY}"
+                      RelativeLayout.XConstraint="{Binding LookX}">
                     <Frame CornerRadius="100" HeightRequest="220" BorderColor="Black" Padding="0"
+                           Scale="{Binding Scale}"
                            BackgroundColor="#515151" Margin="20" VerticalOptions="Center">
                         <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
                             <Button x:Name="LeftLookButton" HorizontalOptions="Start" Margin="0, 30, 0, 30"
-                                         VerticalOptions="Start" HeightRequest="220"
-                                         WidthRequest="70" />
+                                    VerticalOptions="Start" HeightRequest="220"
+                                    WidthRequest="70" />
                             <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="Start">
                                 <Button x:Name="UpLookButton" HorizontalOptions="Start" HeightRequest="90"
-                                             WidthRequest="70" />
+                                        WidthRequest="70" />
                                 <Button x:Name="DownLookButton" HorizontalOptions="Start" HeightRequest="170"
-                                             WidthRequest="70" />
+                                        WidthRequest="70" />
                             </StackLayout>
                             <Button x:Name="RightLookButton" HorizontalOptions="Start"
-                                         VerticalOptions="StartAndExpand"
-                                         Margin="0, 30, 0, 30" HeightRequest="220"
-                                         WidthRequest="70" />
+                                    VerticalOptions="StartAndExpand"
+                                    Margin="0, 30, 0, 30" HeightRequest="220"
+                                    WidthRequest="70" />
                         </StackLayout>
                     </Frame>
                     <Frame CornerRadius="100" HeightRequest="200" WidthRequest="200" Padding="0" BorderColor="Black"
@@ -109,7 +111,7 @@
                             WidthRequest="120" HeightRequest="120" VerticalOptions="Start" IsVisible="False" />
                 </Grid>
                 <Frame x:Name="ButtonsFrame" CornerRadius="100" BorderColor="Black" Padding="4"
-                       BackgroundColor="#515151"
+                       BackgroundColor="#515151" Scale="{Binding Scale}"
                        RelativeLayout.XConstraint="{Binding ButtonsX}"
                        RelativeLayout.YConstraint="{Binding ButtonsY}">
                     <StackLayout VerticalOptions="Center" Orientation="Horizontal">
@@ -146,40 +148,40 @@
                 <ImageButton x:Name="SettingsButton" RelativeLayout.XConstraint="{Binding SettingsX}"
                              HeightRequest="60" WidthRequest="60" VerticalOptions="Start" HorizontalOptions="Start"
                              Source="{gamePadKeyboard:ImageResource GamePadKeyboard.Images.gear.png}"
-                             Pressed="OnSettingsPressed" />
-                <Button x:Name="StartButton" VerticalOptions="Start" HorizontalOptions="Start"
-                        RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
-                        Pressed="OnButtonPressed" Released="OnButtonReleased"
-                        BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
-                        Margin="-80, 80, 0, 0" Text="Start" FontAttributes="Bold" Padding="8, 2" />
+                             Scale="{Binding Scale}" Pressed="OnSettingsPressed" />
                 <Button x:Name="SelectButton" VerticalOptions="Start" HorizontalOptions="Start"
                         RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                         BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
-                        Margin="60, 80, 0, 0" Text="Select" FontAttributes="Bold" Padding="2" />
+                        Margin="-80, 80, 0, 0" Text="Select" FontAttributes="Bold" Padding="2" />
+                <Button x:Name="StartButton" VerticalOptions="Start" HorizontalOptions="Start"
+                        RelativeLayout.XConstraint="{Binding SettingsX}"
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
+                        Pressed="OnButtonPressed" Released="OnButtonReleased"
+                        BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
+                        Margin="60, 80, 0, 0" Text="Start" FontAttributes="Bold" Padding="8, 2" />
                 <Button x:Name="L1Button" VerticalOptions="Start" HorizontalOptions="Start"
                         RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                         BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
                         Margin="-80, 160, 0, 0" Text="L1" FontAttributes="Bold" Padding="24, 2, 2, 2" />
                 <Button x:Name="R1Button" VerticalOptions="Start" HorizontalOptions="Start"
                         RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                         BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
                         Margin="60, 160, 0, 0" Text="R1" FontAttributes="Bold" Padding="24, 2, 2, 2" />
                 <Button x:Name="L2Button" VerticalOptions="Start" HorizontalOptions="Start"
                         RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                         BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
                         Margin="-80, 220, 0, 0" Text="L2" FontAttributes="Bold" Padding="24, 2, 2, 2" />
                 <Button x:Name="R2Button" VerticalOptions="Start" HorizontalOptions="Start"
                         RelativeLayout.XConstraint="{Binding SettingsX}"
-                        WidthRequest="74" HeightRequest="40" 
+                        WidthRequest="74" HeightRequest="40" Scale="{Binding Scale}"
                         Pressed="OnButtonPressed" Released="OnButtonReleased"
                         BackgroundColor="Black" BorderColor="Yellow" TextColor="Yellow" BorderWidth="1"
                         Margin="60, 220, 0, 0" Text="R2" FontAttributes="Bold" Padding="24, 2, 2, 2" />

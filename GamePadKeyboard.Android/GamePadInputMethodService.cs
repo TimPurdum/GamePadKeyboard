@@ -9,6 +9,7 @@ using Android.Support.V4.App;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
+using GamePadKeyboard.TouchApi;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Keycode = Android.Views.Keycode;
@@ -35,15 +36,16 @@ namespace GamePadKeyboard.Droid
         {
             base.OnCreate();
             SetNotification(true);
+            
         }
 
 
         public override View OnCreateInputView()
         {
             Forms.Init(this, null);
-            var gamepadView = new GamePad();
+            var gamepadView = new GamePad(IsDeviceSurfaceDuo(ApplicationContext));
             var screenWidthPx = Resources.DisplayMetrics.WidthPixels;
-            var screeHeightPx = Resources.DisplayMetrics.HeightPixels / 3;
+            _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 3;
 
             if (IsDeviceSurfaceDuo(ApplicationContext))
             {
@@ -51,16 +53,22 @@ namespace GamePadKeyboard.Droid
                 var surfaceOrientation = manager.DefaultDisplay.Rotation;
                 if (surfaceOrientation == SurfaceOrientation.Rotation90 ||
                     surfaceOrientation == SurfaceOrientation.Rotation270)
-                    screeHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
+                    _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
             }
 
-            var androidView = ConvertFormsToNative(gamepadView,
-                new Rectangle(0, 0, screenWidthPx, screeHeightPx));
+            _androidView = ConvertFormsToNative(gamepadView,
+                new Rectangle(0, 0, screenWidthPx, _screenHeightPx));
 
             gamepadView.KeyPressed += OnGamePadKeyPressed;
             gamepadView.KeyReleased += OnGamePadKeyReleased;
             gamepadView.SettingsPressed += OnSettingsPressed;
-            return androidView;
+            return _androidView;
+        }
+
+
+        public bool IsDeviceSurfaceDuo(Context context, string feature = "com.microsoft.device.display.displaymask")
+        {
+            return context?.PackageManager?.HasSystemFeature(feature) ?? false;
         }
 
         private void OnSettingsPressed(object sender, EventArgs e)
@@ -69,12 +77,6 @@ namespace GamePadKeyboard.Droid
             intent.SetFlags(ActivityFlags.NewTask);
             StartActivity(intent);
             RequestShowSelf(ShowFlags.Forced);
-        }
-
-
-        public bool IsDeviceSurfaceDuo(Context context, string feature = "com.microsoft.device.display.displaymask")
-        {
-            return context?.PackageManager?.HasSystemFeature(feature) ?? false;
         }
 
 
@@ -129,7 +131,7 @@ namespace GamePadKeyboard.Droid
             };
 
             var notificationManager = (NotificationManager) GetSystemService(NotificationService);
-            notificationManager.CreateNotificationChannel(channel);
+            notificationManager?.CreateNotificationChannel(channel);
         }
 
         private void SetNotification(bool visible)
@@ -149,7 +151,7 @@ namespace GamePadKeyboard.Droid
 
                 var notificationIntent = new Intent(NotificationReceiver.ActionShow);
                 var contentIntent = PendingIntent.GetBroadcast(ApplicationContext, 1, notificationIntent, 0);
-                
+
                 var title = "Show GamePad Keyboard";
                 var body = "Tap here to open the gamepad. Disable in settings.";
 
@@ -171,9 +173,16 @@ namespace GamePadKeyboard.Droid
             }
             else if (_notificationReceiver != null)
             {
-                notificationManager.Cancel(NotificationOngoingId);
-                UnregisterReceiver(_notificationReceiver);
-                _notificationReceiver = null;
+                try
+                {
+                    notificationManager?.Cancel(NotificationOngoingId);
+                    UnregisterReceiver(_notificationReceiver);
+                    _notificationReceiver = null;
+                }
+                catch
+                {
+                    // nothing for now
+                }
             }
         }
 
@@ -181,6 +190,8 @@ namespace GamePadKeyboard.Droid
         private const int NotificationOngoingId = 1001;
         private const int OpenSettingsNotificationId = 1002;
         private readonly AndroidKeyMap _keyMap;
-        private NotificationReceiver _notificationReceiver;
+        private static NotificationReceiver _notificationReceiver;
+        private View _androidView;
+        private int _screenHeightPx;
     }
 }

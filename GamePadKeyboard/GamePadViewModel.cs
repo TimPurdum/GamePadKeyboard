@@ -1,7 +1,6 @@
 ﻿namespace GamePadKeyboard
 {
-    public class GamePadViewModel: BaseViewModel
+    public class GamePadViewModel : BaseViewModel
     {
-        
     }
 }

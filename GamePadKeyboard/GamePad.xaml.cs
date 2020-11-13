@@ -11,8 +11,11 @@ namespace GamePadKeyboard
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class GamePad : ContentView
     {
-        public GamePad()
+        private readonly bool _isSurfaceDuo;
+
+        public GamePad(bool isSurfaceDuo)
         {
+            _isSurfaceDuo = isSurfaceDuo;
             InitializeComponent();
             BindingContext = this;
             SizeChanged += SetLayout;
@@ -50,53 +53,6 @@ namespace GamePadKeyboard
             lookPadTouchEffect.TouchAction += OnTouchEffectAction;
             LeftPadFrame.Effects.Add(dPadTouchEffect);
             LookPadFrame.Effects.Add(lookPadTouchEffect);
-        }
-
-        private void RefreshLayout<TSender>(TSender obj) where TSender : class
-        {
-            SetLayout(this, EventArgs.Empty);
-        }
-
-        private void SetLayout(object sender, EventArgs e)
-        {
-            var isLandscape = DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation90 ||
-                             DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation270;
-            switch (UserSettings.GetControllerLayout())
-            {
-                case ControllerLayout.PlayStyle:
-                    LeftPadGrid.TranslationX = 40;
-                    LeftPadGrid.TranslationY = Height - (LeftPadGrid.Height + 140);
-                    LeftPadGrid.IsVisible = isLandscape;
-                    DirectionalPadFrame.TranslationX = 0;
-                    DirectionalPadFrame.TranslationY = 0;
-                    break;
-                default:
-                    LeftPadGrid.TranslationX = 0;
-                    LeftPadGrid.TranslationY = 0;
-                    DirectionalPadFrame.TranslationX = 40;
-                    DirectionalPadFrame.TranslationY = Height - (DirectionalPadFrame.Height + 100);
-                    DirectionalPadFrame.IsVisible = isLandscape;
-                    break;
-            }
-            ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + 40));
-            ButtonsY = Constraint.Constant(0);
-            LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
-            LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
-            SettingsX = Constraint.Constant(Width / 2 - 40);
-            SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
-            
-            LookPadGrid.IsVisible = isLandscape;
-            L1Button.IsVisible = isLandscape;
-            L2Button.IsVisible = isLandscape;
-            R1Button.IsVisible = isLandscape;
-            R2Button.IsVisible = isLandscape;
-            StartButton.Margin = isLandscape 
-                ? new Thickness(-80, 80, 0, 0)
-                : new Thickness(-10, 120, 0, 0);
-            SelectButton.Margin = isLandscape 
-                ? new Thickness(60, 80, 0, 0)
-                : new Thickness(-10, 166, 0, 0);
-            PadMargin = isLandscape ? new Thickness(0, 0, 0, 50) : new Thickness(0);
         }
 
         public event EventHandler<KeyPressEventArgs> KeyPressed;
@@ -157,33 +113,6 @@ namespace GamePadKeyboard
                 }
             }
         }
-        
-        public Constraint SettingsX
-        {
-            get => _settingsX;
-            set
-            {
-                if (_settingsX != value)
-                {
-                    _settingsX = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        
-        
-        public Constraint SettingsY
-        {
-            get => _settingsY;
-            set
-            {
-                if (_settingsY != value)
-                {
-                    _settingsY = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public Thickness PadMargin
         {
@@ -198,11 +127,116 @@ namespace GamePadKeyboard
             }
         }
 
+        public double Scale
+        {
+            get => _scale;
+            set
+            {
+                if (_scale != value)
+                {
+                    _scale = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public Constraint SettingsX
+        {
+            get => _settingsX;
+            set
+            {
+                if (_settingsX != value)
+                {
+                    _settingsX = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        public Constraint SettingsY
+        {
+            get => _settingsY;
+            set
+            {
+                if (_settingsY != value)
+                {
+                    _settingsY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private void RefreshLayout<TSender>(TSender obj) where TSender : class
+        {
+            SetLayout(this, EventArgs.Empty);
+        }
+
+        private void SetLayout(object sender, EventArgs e)
+        {
+            var isLandscape = DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation90 ||
+                              DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation270;
+            Scale = isLandscape ? Width / 720.0 : Width / 540;
+
+            switch (UserSettings.GetControllerLayout())
+            {
+                case ControllerLayout.PlayStyle:
+                    LeftPadGrid.TranslationX = 40 * Scale;
+                    LeftPadGrid.TranslationY = Height - (LeftPadGrid.Height + 140);
+                    LeftPadGrid.IsVisible = isLandscape;
+                    DirectionalPadFrame.TranslationX = 0;
+                    DirectionalPadFrame.TranslationY = 0;
+                    DirectionalPadFrame.IsVisible = true;
+                    break;
+                default:
+                    LeftPadGrid.TranslationX = 0;
+                    LeftPadGrid.TranslationY = 0;
+                    LeftPadGrid.IsVisible = true;
+                    DirectionalPadFrame.TranslationX = 40 * Scale;
+                    DirectionalPadFrame.TranslationY = Height - (DirectionalPadFrame.Height + 100);
+                    DirectionalPadFrame.IsVisible = isLandscape;
+                    break;
+            }
+
+            if (_isSurfaceDuo)
+            {
+                ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (40 * Scale)));
+                SettingsX = Constraint.Constant(Width / 2 - (40 * Scale));
+                LeftPadGrid.TranslationY += 20;
+                DirectionalPadFrame.TranslationY += 20;
+            }
+            else
+            {
+                ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (20 * Scale)));
+                SettingsX = Constraint.Constant(Width / 2 - (60 * Scale));
+                LeftPadGrid.TranslationX = LeftPadGrid.TranslationX - 28;
+            }
+            
+            ButtonsY = Constraint.Constant(0);
+            LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
+            LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
+            
+            SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
+
+            LookPadGrid.IsVisible = isLandscape;
+            L1Button.IsVisible = isLandscape;
+            L2Button.IsVisible = isLandscape;
+            R1Button.IsVisible = isLandscape;
+            R2Button.IsVisible = isLandscape;
+            SelectButton.Margin = isLandscape
+                ? new Thickness(-80, 80, 0, 0)
+                : new Thickness(-10, 120, 0, 0);
+            StartButton.Margin = isLandscape
+                ? new Thickness(60, 80, 0, 0)
+                : new Thickness(-10, 166, 0, 0);
+            PadMargin = isLandscape ? new Thickness(0, 0, 0, (50 * Scale)) : new Thickness(0);
+            InvalidateLayout();
+        }
+
 
         private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
         {
             if (!(sender is View view)) return;
-
             switch (args.Type)
             {
                 case TouchActionType.Pressed:
@@ -231,31 +265,19 @@ namespace GamePadKeyboard
                     if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
                     {
                         if (sender == LeftPadFrame)
-                        {
                             SetDPadTouch(args.Location);
-                        }
-                        else if (sender == LookPadFrame)
-                        {
-                            SetLookPadTouch(args.Location);
-                        }
+                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
                     }
 
                     break;
 
                 case TouchActionType.Released:
                     if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
-                    {
                         _dragDictionary.Remove(view);
-                    }
 
                     if (sender == LeftPadFrame)
-                    {
                         ReleaseDPadTouch();
-                    }
-                    else if (sender == LookPadFrame)
-                    {
-                        ReleaseLookPadTouch();
-                    }
+                    else if (sender == LookPadFrame) ReleaseLookPadTouch();
 
                     break;
             }
@@ -267,7 +289,7 @@ namespace GamePadKeyboard
             ThumbLeft.IsVisible = true;
             ThumbLeft.TranslationX = point.X - 60;
             ThumbLeft.TranslationY = point.Y - 60;
-            
+
             var width = LeftPadFrame.Width;
             var height = LeftPadFrame.Height;
             if (point.X < width / 3)
@@ -322,8 +344,8 @@ namespace GamePadKeyboard
             ThumbRight.TranslationY = point.Y - 60;
             var width = LookPadFrame.Width;
             var height = LookPadFrame.Height;
-            var x = point.X - (_startLookPoint.X - (width / 2));
-            var y = point.Y - (_startLookPoint.Y - (height / 2));
+            var x = point.X - (_startLookPoint.X - width / 2);
+            var y = point.Y - (_startLookPoint.Y - height / 2);
             if (x < width / 3)
             {
                 OnButtonPressed(LeftLookButton, EventArgs.Empty);
@@ -392,7 +414,7 @@ namespace GamePadKeyboard
             _buttonsDown.Remove(sender as View);
             KeyReleased?.Invoke(this, args);
         }
-        
+
         private void OnSettingsPressed(object sender, EventArgs e)
         {
             SettingsPressed?.Invoke(this, e);
@@ -412,10 +434,11 @@ namespace GamePadKeyboard
         private Constraint _buttonsY;
         private Constraint _lookX;
         private Constraint _lookY;
-        private Point _startLookPoint;
+        private Thickness _padMargin;
+        private double _scale;
         private Constraint _settingsX;
         private Constraint _settingsY;
-        private Thickness _padMargin;
+        private Point _startLookPoint;
 
         private class DragInfo
         {
