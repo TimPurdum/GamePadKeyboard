@@ -9,7 +9,17 @@
                 <Label Text="Customize Your S-Duo GamePad" HorizontalTextAlignment="Center" TextColor="White"
                        FontSize="36" />
             </Frame>
-            <Button Text="Setup Guide" WidthRequest="100" VerticalOptions="Center" Pressed="OnSetupGuidePressed" />
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Setup Guide" WidthRequest="200" HorizontalOptions="Start" Pressed="OnSetupGuidePressed" />
+                <Grid HorizontalOptions="CenterAndExpand" />
+                <Button Text="Show GamePad" WidthRequest="200" HorizontalOptions="End" Pressed="OnShowGamePadPressed" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label HorizontalOptions="Start">Auto-Send Crash Data</Label>
+                <Switch HorizontalOptions="Start" IsToggled="{Binding SendCrashData}" />
+                <Grid HorizontalOptions="CenterAndExpand" />
+                <Button Text="Email Feedback" WidthRequest="200" HorizontalOptions="End" Pressed="OnSendFeedback" />
+            </StackLayout>
             <Label Text="Select User Layout" />
             <StackLayout Orientation="Horizontal">
                 <Grid HorizontalOptions="FillAndExpand">

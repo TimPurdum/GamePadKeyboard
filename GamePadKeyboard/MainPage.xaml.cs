@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace GamePadKeyboard
@@ -18,6 +19,7 @@ namespace GamePadKeyboard
             EditButton.Text = "✏️";
             AddButton.Text = "➕";
             DeleteButton.Text = "🗑️";
+            SendCrashData = UserSettings.GetSendCrashData();
         }
 
 
@@ -309,6 +311,21 @@ namespace GamePadKeyboard
         }
 
 
+        public bool SendCrashData
+        {
+            get => _sendCrashData;
+            set
+            {
+                if (_sendCrashData != value)
+                {
+                    _sendCrashData = value;
+                    OnPropertyChanged();
+                    UserSettings.SetSendCrashData(value);
+                }
+            }
+        }
+
+
         public string StartKey
         {
             get => _startKey.ToString();
@@ -369,7 +386,7 @@ namespace GamePadKeyboard
 
         private async void OnSetupGuidePressed(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new GuidePage());
+            await Launcher.OpenAsync("https://cedarrivertech.com/s-duo-gamepad");
         }
 
         private async void OnLayoutSelectionChanged(object sender, EventArgs e)
@@ -383,59 +400,66 @@ namespace GamePadKeyboard
 
         private async void OnNewLayoutPressed(object sender, EventArgs e)
         {
-            var dialog = new ContentPage
+            try
             {
-                BackgroundColor = Color.FromHex("#D9000000"),
-                Padding = new Thickness(20, 20, 20, 20)
-            };
-
-            var entry = new Entry();
-            var createButton = new Button {Text = "Create", IsEnabled = false};
-
-            entry.TextChanged += (o, args) => { createButton.IsEnabled = !string.IsNullOrEmpty(entry.Text); };
-
-            var cancelButton = new Button {Text = "Cancel"};
-            createButton.Pressed += async (o, args) =>
-            {
-                await UserSettings.NewLayoutMap(entry.Text);
-
-                Device.BeginInvokeOnMainThread(async () =>
+                var dialog = new ContentPage
                 {
-                    Layouts = UserSettings.GetLayoutMapNames();
-                    SetMappedKeysAndController();
-                    LayoutPicker.SelectedItem = entry.Text;
-                    await Navigation.PopModalAsync(false);
-                });
-            };
+                    BackgroundColor = Color.FromHex("#D9000000"),
+                    Padding = new Thickness(20, 20, 20, 20)
+                };
 
-            cancelButton.Pressed += async (o, args) =>
-            {
-                Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
-            };
+                var entry = new Entry();
+                var createButton = new Button {Text = "Create", IsEnabled = false};
 
-            var contentLayout = new StackLayout
-            {
-                VerticalOptions = LayoutOptions.CenterAndExpand,
-                HorizontalOptions = LayoutOptions.FillAndExpand,
-                Orientation = StackOrientation.Vertical,
-                Children =
+                entry.TextChanged += (o, args) => { createButton.IsEnabled = !string.IsNullOrEmpty(entry.Text); };
+
+                var cancelButton = new Button {Text = "Cancel"};
+                createButton.Pressed += async (o, args) =>
                 {
-                    new Label {Text = "New Layout Name"},
-                    entry,
-                    new StackLayout
+                    await UserSettings.NewLayoutMap(entry.Text);
+
+                    Device.BeginInvokeOnMainThread(async () =>
                     {
-                        Orientation = StackOrientation.Horizontal,
-                        Children =
+                        Layouts = UserSettings.GetLayoutMapNames();
+                        SetMappedKeysAndController();
+                        LayoutPicker.SelectedItem = entry.Text;
+                        await Navigation.PopModalAsync(false);
+                    });
+                };
+
+                cancelButton.Pressed += async (o, args) =>
+                {
+                    Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
+                };
+
+                var contentLayout = new StackLayout
+                {
+                    VerticalOptions = LayoutOptions.CenterAndExpand,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Orientation = StackOrientation.Vertical,
+                    Children =
+                    {
+                        new Label {Text = "New Layout Name"},
+                        entry,
+                        new StackLayout
                         {
-                            createButton, cancelButton
+                            Orientation = StackOrientation.Horizontal,
+                            Children =
+                            {
+                                createButton, cancelButton
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            dialog.Content = contentLayout;
+                dialog.Content = contentLayout;
 
-            await Navigation.PushModalAsync(dialog, false);
+                await Navigation.PushModalAsync(dialog, false);
+            }
+            catch (Exception ex)
+            {
+                await ExceptionHandler.Handle(ex);
+            }
         }
 
 
@@ -449,56 +473,197 @@ namespace GamePadKeyboard
 
         private async void OnControllerSelectionChanged(object sender, EventArgs e)
         {
-            if (ControllerPicker?.SelectedItem != null)
+            try
             {
-                await UserSettings.SetControllerLayout((ControllerLayout) Enum.Parse(typeof(ControllerLayout),
-                    ControllerPicker.SelectedItem.ToString()));
-                MessagingCenter.Send(this, "Refresh");
+                if (ControllerPicker?.SelectedItem != null)
+                {
+                    await UserSettings.SetControllerLayout((ControllerLayout) Enum.Parse(typeof(ControllerLayout),
+                        ControllerPicker.SelectedItem.ToString()));
+                    MessagingCenter.Send(this, "Refresh");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ExceptionHandler.Handle(ex);
             }
         }
 
         private void SetMappedKeysAndController()
         {
-            _upKey = UserSettings.GetMappedKey(FormsKey.W);
-            _downKey = UserSettings.GetMappedKey(FormsKey.S);
-            _leftKey = UserSettings.GetMappedKey(FormsKey.A);
-            _rightKey = UserSettings.GetMappedKey(FormsKey.D);
-            _dUpKey = UserSettings.GetMappedKey(FormsKey.DpadUp);
-            _dDownKey = UserSettings.GetMappedKey(FormsKey.DpadDown);
-            _dLeftKey = UserSettings.GetMappedKey(FormsKey.DpadLeft);
-            _dRightKey = UserSettings.GetMappedKey(FormsKey.DpadRight);
-            _aKey = UserSettings.GetMappedKey(FormsKey.ButtonA);
-            _bKey = UserSettings.GetMappedKey(FormsKey.ButtonB);
-            _xKey = UserSettings.GetMappedKey(FormsKey.ButtonX);
-            _yKey = UserSettings.GetMappedKey(FormsKey.ButtonY);
-            _lookUpKey = UserSettings.GetMappedKey(FormsKey.Up);
-            _lookDownKey = UserSettings.GetMappedKey(FormsKey.Down);
-            _lookLeftKey = UserSettings.GetMappedKey(FormsKey.Left);
-            _lookRightKey = UserSettings.GetMappedKey(FormsKey.Right);
-            _l1Key = UserSettings.GetMappedKey(FormsKey.ButtonL1);
-            _l2Key = UserSettings.GetMappedKey(FormsKey.ButtonL2);
-            _r1Key = UserSettings.GetMappedKey(FormsKey.ButtonR1);
-            _r2Key = UserSettings.GetMappedKey(FormsKey.ButtonR2);
-            _startKey = UserSettings.GetMappedKey(FormsKey.ButtonStart);
-            _selectKey = UserSettings.GetMappedKey(FormsKey.ButtonSelect);
+            try
+            {
+                _upKey = UserSettings.GetMappedKey(FormsKey.W);
+                _downKey = UserSettings.GetMappedKey(FormsKey.S);
+                _leftKey = UserSettings.GetMappedKey(FormsKey.A);
+                _rightKey = UserSettings.GetMappedKey(FormsKey.D);
+                _dUpKey = UserSettings.GetMappedKey(FormsKey.DpadUp);
+                _dDownKey = UserSettings.GetMappedKey(FormsKey.DpadDown);
+                _dLeftKey = UserSettings.GetMappedKey(FormsKey.DpadLeft);
+                _dRightKey = UserSettings.GetMappedKey(FormsKey.DpadRight);
+                _aKey = UserSettings.GetMappedKey(FormsKey.ButtonA);
+                _bKey = UserSettings.GetMappedKey(FormsKey.ButtonB);
+                _xKey = UserSettings.GetMappedKey(FormsKey.ButtonX);
+                _yKey = UserSettings.GetMappedKey(FormsKey.ButtonY);
+                _lookUpKey = UserSettings.GetMappedKey(FormsKey.Up);
+                _lookDownKey = UserSettings.GetMappedKey(FormsKey.Down);
+                _lookLeftKey = UserSettings.GetMappedKey(FormsKey.Left);
+                _lookRightKey = UserSettings.GetMappedKey(FormsKey.Right);
+                _l1Key = UserSettings.GetMappedKey(FormsKey.ButtonL1);
+                _l2Key = UserSettings.GetMappedKey(FormsKey.ButtonL2);
+                _r1Key = UserSettings.GetMappedKey(FormsKey.ButtonR1);
+                _r2Key = UserSettings.GetMappedKey(FormsKey.ButtonR2);
+                _startKey = UserSettings.GetMappedKey(FormsKey.ButtonStart);
+                _selectKey = UserSettings.GetMappedKey(FormsKey.ButtonSelect);
 
-            foreach (var prop in GetType().GetProperties().Where(p => p.Name.EndsWith("Key")))
-                OnPropertyChanged(prop.Name);
+                foreach (var prop in GetType().GetProperties().Where(p => p.Name.EndsWith("Key")))
+                    OnPropertyChanged(prop.Name);
 
-            ControllerPicker.SelectedItem = UserSettings.GetControllerLayout().ToString();
-            InvalidateMeasure();
-            MessagingCenter.Send(this, "Refresh");
+                ControllerPicker.SelectedItem = UserSettings.GetControllerLayout().ToString();
+                InvalidateMeasure();
+                MessagingCenter.Send(this, "Refresh");
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
         private async void OnLayoutEntryCompleted(object sender, EventArgs e)
         {
-            LayoutEntry.IsVisible = false;
-            LayoutPicker.IsVisible = true;
-            if (!string.IsNullOrEmpty(LayoutEntry.Text))
+            try
             {
-                await UserSettings.RenameCurrentLayout(LayoutEntry.Text);
-                Layouts = UserSettings.GetLayoutMapNames();
-                LayoutPicker.SelectedItem = LayoutEntry.Text;
+                LayoutEntry.IsVisible = false;
+                LayoutPicker.IsVisible = true;
+                if (!string.IsNullOrEmpty(LayoutEntry.Text))
+                {
+                    await UserSettings.RenameCurrentLayout(LayoutEntry.Text);
+                    Layouts = UserSettings.GetLayoutMapNames();
+                    LayoutPicker.SelectedItem = LayoutEntry.Text;
+                }
+            }
+            catch (Exception ex)
+            {
+                await ExceptionHandler.Handle(ex);
+            }
+        }
+
+        private async void OnDeleteLayoutPressed(object sender, EventArgs e)
+        {
+            try
+            {
+                if (LayoutPicker.SelectedItem == null) return;
+                var dialog = new ContentPage
+                {
+                    BackgroundColor = Color.FromHex("#D9000000"),
+                    Padding = new Thickness(20, 20, 20, 20)
+                };
+
+                var deleteButton = new Button {Text = "Delete", BackgroundColor = Color.Red};
+
+                var cancelButton = new Button {Text = "Cancel"};
+                deleteButton.Pressed += async (o, args) =>
+                {
+                    await UserSettings.DeleteLayoutMap();
+
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        Layouts = UserSettings.GetLayoutMapNames();
+                        SetMappedKeysAndController();
+                        LayoutPicker.SelectedIndex = 0;
+                        await Navigation.PopModalAsync(false);
+                    });
+                };
+
+                cancelButton.Pressed += (o, args) =>
+                {
+                    Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
+                };
+
+                var contentLayout = new StackLayout
+                {
+                    VerticalOptions = LayoutOptions.CenterAndExpand,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Orientation = StackOrientation.Vertical,
+                    Children =
+                    {
+                        new Label {Text = $"Delete Layout {LayoutPicker.SelectedItem}? This action cannot be undone."},
+                        new StackLayout
+                        {
+                            Orientation = StackOrientation.Horizontal,
+                            Children =
+                            {
+                                deleteButton, cancelButton
+                            }
+                        }
+                    }
+                };
+
+                dialog.Content = contentLayout;
+
+                await Navigation.PushModalAsync(dialog, false);
+            }
+            catch (Exception ex)
+            {
+                await ExceptionHandler.Handle(ex);
+            }
+        }
+
+        private void OnShowGamePadPressed(object sender, EventArgs e)
+        {
+            MessagingCenter.Send(this, "Show GamePad");
+        }
+
+        private async void OnSendFeedback(object sender, EventArgs e)
+        {
+            try
+            {
+                var body = "";
+                var dialog = new ContentPage
+                {
+                    BackgroundColor = Color.FromHex("#D9000000"),
+                    Padding = new Thickness(20, 20, 20, 20)
+                };
+
+                var yesButton = new Button {Text = "Yes"};
+
+                var noButton = new Button {Text = "No"};
+                yesButton.Pressed += async (o, args) =>
+                {
+                    body = $"{Environment.NewLine}{Environment.NewLine}{UserSettings.FetchCrashLogs()}";
+                    Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
+                };
+
+                noButton.Pressed += (o, args) =>
+                {
+                    Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
+                };
+
+                var contentLayout = new StackLayout
+                {
+                    VerticalOptions = LayoutOptions.CenterAndExpand,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Orientation = StackOrientation.Vertical,
+                    Children =
+                    {
+                        new Label {Text = "Include crash log data in email message?"},
+                        new StackLayout
+                        {
+                            Orientation = StackOrientation.Horizontal,
+                            Children =
+                            {
+                                yesButton, noButton
+                            }
+                        }
+                    }
+                };
+
+                dialog.Content = contentLayout;
+
+                await Email.ComposeAsync("S-Duo GamePad Feedback", body, "tim@cedarrivertech.com");
+            }
+            catch (Exception ex)
+            {
+                await ExceptionHandler.Handle(ex);
             }
         }
 
@@ -538,6 +703,7 @@ namespace GamePadKeyboard
 
         private FormsKey _rightKey;
         private FormsKey _selectKey;
+        private bool _sendCrashData;
 
         private FormsKey _startKey;
 
@@ -546,59 +712,5 @@ namespace GamePadKeyboard
         private FormsKey _xKey;
 
         private FormsKey _yKey;
-
-        private async void OnDeleteLayoutPressed(object sender, EventArgs e)
-        {
-            if (LayoutPicker.SelectedItem == null) return;
-            var dialog = new ContentPage
-            {
-                BackgroundColor = Color.FromHex("#D9000000"),
-                Padding = new Thickness(20, 20, 20, 20)
-            };
-
-            var deleteButton = new Button {Text = "Delete", BackgroundColor = Color.Red};
-
-            var cancelButton = new Button {Text = "Cancel"};
-            deleteButton.Pressed += async (o, args) =>
-            {
-                await UserSettings.DeleteLayoutMap();
-
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    Layouts = UserSettings.GetLayoutMapNames();
-                    SetMappedKeysAndController();
-                    LayoutPicker.SelectedIndex = 0;
-                    await Navigation.PopModalAsync(false);
-                });
-            };
-
-            cancelButton.Pressed += (o, args) =>
-            {
-                Device.BeginInvokeOnMainThread(async () => await Navigation.PopModalAsync(false));
-            };
-
-            var contentLayout = new StackLayout
-            {
-                VerticalOptions = LayoutOptions.CenterAndExpand,
-                HorizontalOptions = LayoutOptions.FillAndExpand,
-                Orientation = StackOrientation.Vertical,
-                Children =
-                {
-                    new Label {Text = $"Delete Layout {LayoutPicker.SelectedItem}? This action cannot be undone."},
-                    new StackLayout
-                    {
-                        Orientation = StackOrientation.Horizontal,
-                        Children =
-                        {
-                            deleteButton, cancelButton
-                        }
-                    }
-                }
-            };
-
-            dialog.Content = contentLayout;
-
-            await Navigation.PushModalAsync(dialog, false);           
-        }
     }
 }

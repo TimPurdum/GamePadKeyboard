@@ -2,13 +2,14 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using Android.Views.InputMethods;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Platform = Xamarin.Essentials.Platform;
 
 namespace GamePadKeyboard.Droid
 {
-    [Activity(Label = "GamePadKeyboard", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true,
+    [Activity(Label = "S-Duo GamePad", Icon = "@mipmap/sDuoGamePad", Theme = "@style/MainTheme", MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode |
                                ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
     public class MainActivity : FormsAppCompatActivity
@@ -31,6 +32,15 @@ namespace GamePadKeyboard.Droid
             Platform.Init(this, savedInstanceState);
             Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+            MessagingCenter.Subscribe<MainPage>(this, "Show GamePad", _ =>
+            {
+                var imm = (InputMethodManager)ApplicationContext.GetSystemService(Service.InputMethodService);
+                if (imm.CurrentInputMethodSubtype.ExtraValue != "S-Duo GamePad")
+                {
+                    imm.ShowInputMethodPicker();
+                }
+                imm.ToggleSoftInput(ShowFlags.Forced, HideSoftInputFlags.None);
+            });
         }
     }
 }

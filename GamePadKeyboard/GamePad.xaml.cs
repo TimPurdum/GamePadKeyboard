@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using GamePadKeyboard.TouchApi;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -174,155 +175,176 @@ namespace GamePadKeyboard
 
         private void SetLayout(object sender, EventArgs e)
         {
-            var isLandscape = DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation90 ||
-                              DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation270;
-            Scale = isLandscape ? Width / 720.0 : Width / 540;
-
-            switch (UserSettings.GetControllerLayout())
+            try
             {
-                case ControllerLayout.PlayStyle:
-                    LeftPadGrid.TranslationX = 40 * Scale;
-                    LeftPadGrid.TranslationY = Height - (LeftPadGrid.Height + 140);
-                    LeftPadGrid.IsVisible = isLandscape;
-                    DirectionalPadFrame.TranslationX = 0;
-                    DirectionalPadFrame.TranslationY = 0;
-                    DirectionalPadFrame.IsVisible = true;
-                    break;
-                default:
-                    LeftPadGrid.TranslationX = 0;
-                    LeftPadGrid.TranslationY = 0;
-                    LeftPadGrid.IsVisible = true;
-                    DirectionalPadFrame.TranslationX = 40 * Scale;
-                    DirectionalPadFrame.TranslationY = Height - (DirectionalPadFrame.Height + 100);
-                    DirectionalPadFrame.IsVisible = isLandscape;
-                    break;
-            }
+                var isLandscape = DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation90 ||
+                                  DeviceDisplay.MainDisplayInfo.Rotation == DisplayRotation.Rotation270;
+                Scale = isLandscape ? Width / 720.0 : Width / 540;
 
-            if (_isSurfaceDuo)
-            {
-                ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (40 * Scale)));
-                SettingsX = Constraint.Constant(Width / 2 - (40 * Scale));
-                LeftPadGrid.TranslationY += 20;
-                DirectionalPadFrame.TranslationY += 20;
-            }
-            else
-            {
-                ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (20 * Scale)));
-                SettingsX = Constraint.Constant(Width / 2 - (60 * Scale));
-                LeftPadGrid.TranslationX = LeftPadGrid.TranslationX - 28;
-            }
-            
-            ButtonsY = Constraint.Constant(0);
-            LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
-            LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
-            
-            SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
+                switch (UserSettings.GetControllerLayout())
+                {
+                    case ControllerLayout.PlayStyle:
+                        LeftPadGrid.TranslationX = 40 * Scale;
+                        LeftPadGrid.TranslationY = Height - (LeftPadGrid.Height + 140);
+                        LeftPadGrid.IsVisible = isLandscape;
+                        DirectionalPadFrame.TranslationX = 0;
+                        DirectionalPadFrame.TranslationY = 0;
+                        DirectionalPadFrame.IsVisible = true;
+                        break;
+                    default:
+                        LeftPadGrid.TranslationX = 0;
+                        LeftPadGrid.TranslationY = 0;
+                        LeftPadGrid.IsVisible = true;
+                        DirectionalPadFrame.TranslationX = 40 * Scale;
+                        DirectionalPadFrame.TranslationY = Height - (DirectionalPadFrame.Height + 100);
+                        DirectionalPadFrame.IsVisible = isLandscape;
+                        break;
+                }
 
-            LookPadGrid.IsVisible = isLandscape;
-            L1Button.IsVisible = isLandscape;
-            L2Button.IsVisible = isLandscape;
-            R1Button.IsVisible = isLandscape;
-            R2Button.IsVisible = isLandscape;
-            SelectButton.Margin = isLandscape
-                ? new Thickness(-80, 80, 0, 0)
-                : new Thickness(-10, 120, 0, 0);
-            StartButton.Margin = isLandscape
-                ? new Thickness(60, 80, 0, 0)
-                : new Thickness(-10, 166, 0, 0);
-            PadMargin = isLandscape ? new Thickness(0, 0, 0, (50 * Scale)) : new Thickness(0);
-            InvalidateLayout();
+                if (_isSurfaceDuo)
+                {
+                    ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (40 * Scale)));
+                    SettingsX = Constraint.Constant(Width / 2 - (40 * Scale));
+                    LeftPadGrid.TranslationY += 20;
+                    DirectionalPadFrame.TranslationY += 20;
+                }
+                else
+                {
+                    ButtonsX = Constraint.Constant(Width - (ButtonsFrame.Width + (20 * Scale)));
+                    SettingsX = Constraint.Constant(Width / 2 - (60 * Scale));
+                    LeftPadGrid.TranslationX = LeftPadGrid.TranslationX - 28;
+                }
+
+                ButtonsY = Constraint.Constant(0);
+                LookX = Constraint.Constant(Width - (ButtonsFrame.Width + 100));
+                LookY = Constraint.Constant(Height - (LookPadFrame.Height + 120));
+
+                SettingsY = Constraint.Constant(Height - (SettingsButton.Height + 10));
+
+                LookPadGrid.IsVisible = isLandscape;
+                L1Button.IsVisible = isLandscape;
+                L2Button.IsVisible = isLandscape;
+                R1Button.IsVisible = isLandscape;
+                R2Button.IsVisible = isLandscape;
+                SelectButton.Margin = isLandscape
+                    ? new Thickness(-80, 80, 0, 0)
+                    : new Thickness(-10, 120, 0, 0);
+                StartButton.Margin = isLandscape
+                    ? new Thickness(60, 80, 0, 0)
+                    : new Thickness(-10, 166, 0, 0);
+                PadMargin = isLandscape ? new Thickness(0, 0, 0, (50 * Scale)) : new Thickness(0);
+                InvalidateLayout();
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
 
         private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
         {
-            if (!(sender is View view)) return;
-            switch (args.Type)
+            try
             {
-                case TouchActionType.Pressed:
-                    // Don't allow a second touch on an already touched BoxView
-                    if (!_dragDictionary.ContainsKey(view))
-                    {
-                        _dragDictionary.Add(view, new DragInfo(args.Id, args.Location));
-
-                        // Set Capture property to true
-                        var touchEffect = (TouchEffect) view.Effects.FirstOrDefault(e => e is TouchEffect);
-                        touchEffect.Capture = true;
-                        if (sender == LeftPadFrame)
+                if (!(sender is View view)) return;
+                switch (args.Type)
+                {
+                    case TouchActionType.Pressed:
+                        // Don't allow a second touch on an already touched BoxView
+                        if (!_dragDictionary.ContainsKey(view))
                         {
-                            SetDPadTouch(args.Location);
+                            _dragDictionary.Add(view, new DragInfo(args.Id, args.Location));
+
+                            // Set Capture property to true
+                            var touchEffect = (TouchEffect) view.Effects.FirstOrDefault(e => e is TouchEffect);
+                            touchEffect.Capture = true;
+                            if (sender == LeftPadFrame)
+                            {
+                                SetDPadTouch(args.Location);
+                            }
+                            else if (sender == LookPadFrame)
+                            {
+                                _startLookPoint = args.Location;
+                                SetLookPadTouch(args.Location);
+                            }
                         }
-                        else if (sender == LookPadFrame)
+
+                        break;
+
+                    case TouchActionType.Moved:
+                        if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
                         {
-                            _startLookPoint = args.Location;
-                            SetLookPadTouch(args.Location);
+                            if (sender == LeftPadFrame)
+                                SetDPadTouch(args.Location);
+                            else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
                         }
-                    }
 
-                    break;
+                        break;
 
-                case TouchActionType.Moved:
-                    if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
-                    {
+                    case TouchActionType.Released:
+                        if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
+                            _dragDictionary.Remove(view);
+
                         if (sender == LeftPadFrame)
-                            SetDPadTouch(args.Location);
-                        else if (sender == LookPadFrame) SetLookPadTouch(args.Location);
-                    }
+                            ReleaseDPadTouch();
+                        else if (sender == LookPadFrame) ReleaseLookPadTouch();
 
-                    break;
-
-                case TouchActionType.Released:
-                    if (_dragDictionary.ContainsKey(view) && _dragDictionary[view].Id == args.Id)
-                        _dragDictionary.Remove(view);
-
-                    if (sender == LeftPadFrame)
-                        ReleaseDPadTouch();
-                    else if (sender == LookPadFrame) ReleaseLookPadTouch();
-
-                    break;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
             }
         }
 
 
         private void SetDPadTouch(Point point)
         {
-            ThumbLeft.IsVisible = true;
-            ThumbLeft.TranslationX = point.X - 60;
-            ThumbLeft.TranslationY = point.Y - 60;
+            try
+            {
+                ThumbLeft.IsVisible = true;
+                ThumbLeft.TranslationX = point.X - 60;
+                ThumbLeft.TranslationY = point.Y - 60;
 
-            var width = LeftPadFrame.Width;
-            var height = LeftPadFrame.Height;
-            if (point.X < width / 3)
-            {
-                OnButtonPressed(LeftButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
-            }
-            else if (point.X > width / 3 * 2)
-            {
-                OnButtonPressed(RightButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
-            }
-            else
-            {
-                if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
+                var width = LeftPadFrame.Width;
+                var height = LeftPadFrame.Height;
+                if (point.X < width / 3)
+                {
+                    OnButtonPressed(LeftButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
+                }
+                else if (point.X > width / 3 * 2)
+                {
+                    OnButtonPressed(RightButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
+                }
+                else
+                {
+                    if (_buttonsDown.Contains(LeftButton)) OnButtonReleased(LeftButton, EventArgs.Empty);
 
-                if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
-            }
+                    if (_buttonsDown.Contains(RightButton)) OnButtonReleased(RightButton, EventArgs.Empty);
+                }
 
-            if (point.Y < height / 3)
-            {
-                OnButtonPressed(UpButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+                if (point.Y < height / 3)
+                {
+                    OnButtonPressed(UpButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+                }
+                else if (point.Y > height / 3 * 2)
+                {
+                    OnButtonPressed(DownButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
+                }
+                else
+                {
+                    if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+                }
             }
-            else if (point.Y > height / 3 * 2)
+            catch (Exception ex)
             {
-                OnButtonPressed(DownButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
-            }
-            else
-            {
-                if (_buttonsDown.Contains(UpButton)) OnButtonReleased(UpButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(DownButton)) OnButtonReleased(DownButton, EventArgs.Empty);
+                Task.Run(() => ExceptionHandler.Handle(ex));
             }
         }
 
@@ -339,44 +361,51 @@ namespace GamePadKeyboard
 
         private void SetLookPadTouch(Point point)
         {
-            ThumbRight.IsVisible = true;
-            ThumbRight.TranslationX = point.X - 60;
-            ThumbRight.TranslationY = point.Y - 60;
-            var width = LookPadFrame.Width;
-            var height = LookPadFrame.Height;
-            var x = point.X - (_startLookPoint.X - width / 2);
-            var y = point.Y - (_startLookPoint.Y - height / 2);
-            if (x < width / 3)
+            try
             {
-                OnButtonPressed(LeftLookButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
-            }
-            else if (x > width / 3 * 2)
-            {
-                OnButtonPressed(RightLookButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
-            }
-            else
-            {
-                if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
+                ThumbRight.IsVisible = true;
+                ThumbRight.TranslationX = point.X - 60;
+                ThumbRight.TranslationY = point.Y - 60;
+                var width = LookPadFrame.Width;
+                var height = LookPadFrame.Height;
+                var x = point.X - (_startLookPoint.X - width / 2);
+                var y = point.Y - (_startLookPoint.Y - height / 2);
+                if (x < width / 3)
+                {
+                    OnButtonPressed(LeftLookButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
+                }
+                else if (x > width / 3 * 2)
+                {
+                    OnButtonPressed(RightLookButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
+                }
+                else
+                {
+                    if (_buttonsDown.Contains(LeftLookButton)) OnButtonReleased(LeftLookButton, EventArgs.Empty);
 
-                if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
-            }
+                    if (_buttonsDown.Contains(RightLookButton)) OnButtonReleased(RightLookButton, EventArgs.Empty);
+                }
 
-            if (y < height / 3)
-            {
-                OnButtonPressed(UpLookButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+                if (y < height / 3)
+                {
+                    OnButtonPressed(UpLookButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+                }
+                else if (y > height / 3 * 2)
+                {
+                    OnButtonPressed(DownLookButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
+                }
+                else
+                {
+                    if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
+                    if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+                }
             }
-            else if (y > height / 3 * 2)
+            catch (Exception ex)
             {
-                OnButtonPressed(DownLookButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
-            }
-            else
-            {
-                if (_buttonsDown.Contains(UpLookButton)) OnButtonReleased(UpLookButton, EventArgs.Empty);
-                if (_buttonsDown.Contains(DownLookButton)) OnButtonReleased(DownLookButton, EventArgs.Empty);
+                Task.Run(()=> ExceptionHandler.Handle(ex));
             }
         }
 
@@ -393,26 +422,40 @@ namespace GamePadKeyboard
 
         private void OnButtonPressed(object sender, EventArgs e)
         {
-            if (_buttonsDown.Contains(sender)) return;
+            try
+            {
+                if (_buttonsDown.Contains(sender)) return;
 
-            var key = GetKeyFromSender(sender);
+                var key = GetKeyFromSender(sender);
 
-            if (key == null) return;
-            var args = new KeyPressEventArgs(key.Value);
-            _buttonsDown.Add(sender as View);
-            KeyPressed?.Invoke(this, args);
+                if (key == null) return;
+                var args = new KeyPressEventArgs(key.Value);
+                _buttonsDown.Add(sender as View);
+                KeyPressed?.Invoke(this, args);
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
         private void OnButtonReleased(object sender, EventArgs e)
         {
-            if (!_buttonsDown.Contains(sender)) return;
+            try
+            {
+                if (!_buttonsDown.Contains(sender)) return;
 
-            var key = GetKeyFromSender(sender);
+                var key = GetKeyFromSender(sender);
 
-            if (key == null) return;
-            var args = new KeyPressEventArgs(key.Value);
-            _buttonsDown.Remove(sender as View);
-            KeyReleased?.Invoke(this, args);
+                if (key == null) return;
+                var args = new KeyPressEventArgs(key.Value);
+                _buttonsDown.Remove(sender as View);
+                KeyReleased?.Invoke(this, args);
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
         private void OnSettingsPressed(object sender, EventArgs e)

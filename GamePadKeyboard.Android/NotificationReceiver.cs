@@ -1,5 +1,7 @@
-﻿using Android.Content;
+﻿using System.Threading.Tasks;
+using Android.Content;
 using Android.Views.InputMethods;
+using Java.Lang;
 
 namespace GamePadKeyboard.Droid
 {
@@ -12,11 +14,18 @@ namespace GamePadKeyboard.Droid
 
         public override void OnReceive(Context context, Intent intent)
         {
-            var action = intent.Action;
-
-            if (action == ActionShow)
+            try
             {
-                _imeService.RequestShowSelf(ShowFlags.Forced);
+                var action = intent.Action;
+
+                if (action == ActionShow)
+                {
+                    _imeService.RequestShowSelf(ShowFlags.Forced);
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android;
 using Android.App;
 using Android.Content;
@@ -9,7 +10,6 @@ using Android.Support.V4.App;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
-using GamePadKeyboard.TouchApi;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Keycode = Android.Views.Keycode;
@@ -43,25 +43,32 @@ namespace GamePadKeyboard.Droid
         public override View OnCreateInputView()
         {
             Forms.Init(this, null);
-            var gamepadView = new GamePad(IsDeviceSurfaceDuo(ApplicationContext));
-            var screenWidthPx = Resources.DisplayMetrics.WidthPixels;
-            _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 3;
-
-            if (IsDeviceSurfaceDuo(ApplicationContext))
+            try
             {
-                var manager = ApplicationContext.GetSystemService(WindowService).JavaCast<IWindowManager>();
-                var surfaceOrientation = manager.DefaultDisplay.Rotation;
-                if (surfaceOrientation == SurfaceOrientation.Rotation90 ||
-                    surfaceOrientation == SurfaceOrientation.Rotation270)
-                    _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
+                var gamepadView = new GamePad(IsDeviceSurfaceDuo(ApplicationContext));
+                var screenWidthPx = Resources.DisplayMetrics.WidthPixels;
+                _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 3;
+
+                if (IsDeviceSurfaceDuo(ApplicationContext))
+                {
+                    var manager = ApplicationContext.GetSystemService(WindowService).JavaCast<IWindowManager>();
+                    var surfaceOrientation = manager.DefaultDisplay.Rotation;
+                    if (surfaceOrientation == SurfaceOrientation.Rotation90 ||
+                        surfaceOrientation == SurfaceOrientation.Rotation270)
+                        _screenHeightPx = Resources.DisplayMetrics.HeightPixels / 2;
+                }
+
+                _androidView = ConvertFormsToNative(gamepadView,
+                    new Rectangle(0, 0, screenWidthPx, _screenHeightPx));
+
+                gamepadView.KeyPressed += OnGamePadKeyPressed;
+                gamepadView.KeyReleased += OnGamePadKeyReleased;
+                gamepadView.SettingsPressed += OnSettingsPressed;
             }
-
-            _androidView = ConvertFormsToNative(gamepadView,
-                new Rectangle(0, 0, screenWidthPx, _screenHeightPx));
-
-            gamepadView.KeyPressed += OnGamePadKeyPressed;
-            gamepadView.KeyReleased += OnGamePadKeyReleased;
-            gamepadView.SettingsPressed += OnSettingsPressed;
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
             return _androidView;
         }
 
@@ -73,30 +80,51 @@ namespace GamePadKeyboard.Droid
 
         private void OnSettingsPressed(object sender, EventArgs e)
         {
-            var intent = new Intent(this, typeof(MainActivity));
-            intent.SetFlags(ActivityFlags.NewTask);
-            StartActivity(intent);
-            RequestShowSelf(ShowFlags.Forced);
+            try
+            {
+                var intent = new Intent(this, typeof(MainActivity));
+                intent.SetFlags(ActivityFlags.NewTask);
+                StartActivity(intent);
+                RequestShowSelf(ShowFlags.Forced);
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
 
         private void OnGamePadKeyPressed(object sender, KeyPressEventArgs e)
         {
-            var ic = CurrentInputConnection;
-            var formsKey = e.KeyValue;
-            var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
-            if (keyCode == null) return;
-            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Down, keyCode.Value));
+            try
+            {
+                var ic = CurrentInputConnection;
+                var formsKey = e.KeyValue;
+                var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
+                if (keyCode == null) return;
+                ic.SendKeyEvent(new KeyEvent(KeyEventActions.Down, keyCode.Value));
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
 
         private void OnGamePadKeyReleased(object sender, KeyPressEventArgs e)
         {
-            var ic = CurrentInputConnection;
-            var formsKey = e.KeyValue;
-            var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
-            if (keyCode == null) return;
-            ic.SendKeyEvent(new KeyEvent(KeyEventActions.Up, keyCode.Value));
+            try
+            {
+                var ic = CurrentInputConnection;
+                var formsKey = e.KeyValue;
+                var keyCode = _keyMap.GetNativeKeyCode(formsKey) as Keycode?;
+                if (keyCode == null) return;
+                ic.SendKeyEvent(new KeyEvent(KeyEventActions.Up, keyCode.Value));
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
+            }
         }
 
 
@@ -136,61 +164,60 @@ namespace GamePadKeyboard.Droid
 
         private void SetNotification(bool visible)
         {
-            var notificationManager = NotificationManager.FromContext(ApplicationContext);
-
-            if (visible && _notificationReceiver == null)
+            try
             {
-                CreateNotificationChannel();
+                var notificationManager = NotificationManager.FromContext(ApplicationContext);
 
-                var text = "Keyboard notification enabled.";
+                if (visible && _notificationReceiver == null)
+                {
+                    CreateNotificationChannel();
 
-                _notificationReceiver = new NotificationReceiver(this);
-                var pFilter = new IntentFilter(NotificationReceiver.ActionShow);
-                pFilter.AddAction(NotificationReceiver.ActionSettings);
-                RegisterReceiver(_notificationReceiver, pFilter);
+                    var text = "Keyboard notification enabled.";
 
-                var notificationIntent = new Intent(NotificationReceiver.ActionShow);
-                var contentIntent = PendingIntent.GetBroadcast(ApplicationContext, 1, notificationIntent, 0);
+                    _notificationReceiver = new NotificationReceiver(this);
+                    var pFilter = new IntentFilter(NotificationReceiver.ActionShow);
+                    pFilter.AddAction(NotificationReceiver.ActionSettings);
+                    RegisterReceiver(_notificationReceiver, pFilter);
 
-                var title = "Show GamePad Keyboard";
-                var body = "Tap here to open the gamepad. Disable in settings.";
+                    var notificationIntent = new Intent(NotificationReceiver.ActionShow);
+                    var contentIntent = PendingIntent.GetBroadcast(ApplicationContext, 1, notificationIntent, 0);
 
-                var mBuilder = new NotificationCompat.Builder(this, NotificationChannelId)
-                    .SetSmallIcon(Resource.Drawable.notify_panel_notification_icon_bg)
-                    .SetAutoCancel(
-                        false) //Make this notification automatically dismissed when the user touches it -> false.
-                    .SetTicker(text)
-                    .SetContentTitle(title)
-                    .SetContentText(body)
-                    .SetContentIntent(contentIntent)
-                    .SetOngoing(true)
-                    .SetPriority((int) NotificationPriority.Default);
+                    var title = "Show GamePad Keyboard";
+                    var body = "Tap here to open the gamepad. Disable in settings.";
 
-                var notificationManagerCompat = NotificationManagerCompat.From(this);
+                    var mBuilder = new NotificationCompat.Builder(this, NotificationChannelId)
+                        .SetSmallIcon(Resource.Drawable.notify_panel_notification_icon_bg)
+                        .SetAutoCancel(
+                            false) //Make this notification automatically dismissed when the user touches it -> false.
+                        .SetTicker(text)
+                        .SetContentTitle(title)
+                        .SetContentText(body)
+                        .SetContentIntent(contentIntent)
+                        .SetOngoing(true)
+                        .SetPriority((int) NotificationPriority.Default);
 
-                // notificationId is a unique int for each notification that you must define
-                notificationManagerCompat.Notify(NotificationOngoingId, mBuilder.Build());
-            }
-            else if (_notificationReceiver != null)
-            {
-                try
+                    var notificationManagerCompat = NotificationManagerCompat.From(this);
+
+                    // notificationId is a unique int for each notification that you must define
+                    notificationManagerCompat.Notify(NotificationOngoingId, mBuilder.Build());
+                }
+                else if (_notificationReceiver != null)
                 {
                     notificationManager?.Cancel(NotificationOngoingId);
                     UnregisterReceiver(_notificationReceiver);
                     _notificationReceiver = null;
                 }
-                catch
-                {
-                    // nothing for now
-                }
+            }
+            catch (Exception ex)
+            {
+                Task.Run(() => ExceptionHandler.Handle(ex));
             }
         }
 
         private const string NotificationChannelId = "GamePadKeyboard";
         private const int NotificationOngoingId = 1001;
-        private const int OpenSettingsNotificationId = 1002;
         private readonly AndroidKeyMap _keyMap;
-        private static NotificationReceiver _notificationReceiver;
+        private NotificationReceiver _notificationReceiver;
         private View _androidView;
         private int _screenHeightPx;
     }
