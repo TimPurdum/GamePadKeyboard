@@ -1,0 +1,30 @@
+﻿namespace GamePadKeyboard
+{
+    public enum GamePadButtons
+    {
+        LeftPadUp,
+        LeftPadDown,
+        LeftPadLeft,
+        LeftPadRight,
+        LeftPadTap,
+        RightPadUp,
+        RightPadDown,
+        RightPadLeft,
+        RightPadRight,
+        RightPadTap,
+        DPadUp,
+        DPadDown,
+        DPadLeft,
+        DPadRight,
+        AButton,
+        BButton,
+        XButton,
+        YButton,
+        R1Button,
+        R2Button,
+        L1Button,
+        L2Button,
+        StartButton,
+        SelectButton
+    }
+}
